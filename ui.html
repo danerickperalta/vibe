@@ -1,17 +1,420 @@
-<h2>Rectangle Creator</h2>
-<p>Count: <input id="count" type="number" value="5"></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
-<script>
-
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
-}
-
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
-
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hoot Spotter</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 16px;
+      margin: 0;
+      color: #333;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header .logo {
+      margin-left: 8px;
+      font-size: 20px;
+    }
+    
+    .selection-section {
+      margin-bottom: 24px;
+    }
+    
+    .selection-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .selection-header {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .selection-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .selection-name {
+      color: #666;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    
+    .button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .button:hover {
+      background: #f5f5f5;
+    }
+    
+    .primary-button {
+      background: #18A0FB;
+      border-color: #0D8CE0;
+      color: white;
+      width: 100%;
+      margin-top: 8px;
+    }
+    
+    .primary-button:hover {
+      background: #0D8CE0;
+    }
+    
+    .primary-button:disabled {
+      background: #ccc;
+      border-color: #bbb;
+      cursor: not-allowed;
+    }
+    
+    .scan-button {
+      background: #FFC107;
+      border-color: #FFA000;
+      color: #333;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .scan-button:hover {
+      background: #FFB300;
+    }
+    
+    .results {
+      margin-top: 20px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .score-card {
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .score-header {
+      padding: 16px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .excellent { background: #4CAF50; }
+    .good { background: #8BC34A; }
+    .average { background: #FFC107; }
+    .poor { background: #FF9800; }
+    .bad { background: #F44336; }
+    
+    .score-title {
+      font-weight: 600;
+    }
+    
+    .score-value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    .score-details {
+      padding: 16px;
+      background: white;
+    }
+    
+    .score-breakdown {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .score-category {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .category-score {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .category-name {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .insights {
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+    
+    .insight {
+      margin-bottom: 8px;
+      display: flex;
+    }
+    
+    .insight-icon {
+      margin-right: 8px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .insight-text {
+      font-size: 14px;
+      flex: 1;
+    }
+    
+    .no-results {
+      padding: 24px 16px;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Hoot Spotter</h1>
+    <span class="logo">🦉</span>
+  </div>
+  
+  <div class="selection-section">
+    <div class="selection-card">
+      <div class="selection-header">Design Library</div>
+      <div class="selection-status">
+        <div id="control-name" class="selection-name">No library selected</div>
+        <button id="focus-control" class="button" disabled>👁️</button>
+      </div>
+      <button id="set-control" class="primary-button">Set Design Library</button>
+    </div>
+    
+    <div class="selection-card">
+      <div class="selection-header">Component to Check</div>
+      <div class="selection-status">
+        <div id="reference-name" class="selection-name">No component selected</div>
+        <button id="focus-reference" class="button" disabled>👁️</button>
+      </div>
+      <button id="set-reference" class="primary-button">Set Component</button>
+    </div>
+    
+    <button id="run-scan" class="scan-button" disabled>Check Design Harmony</button>
+  </div>
+  
+  <div id="results" class="results hidden">
+    <!-- Results will be populated here -->
+  </div>
+  
+  <script>
+    // DOM Elements
+    const setControlBtn = document.getElementById('set-control');
+    const setReferenceBtn = document.getElementById('set-reference');
+    const runScanBtn = document.getElementById('run-scan');
+    const focusControlBtn = document.getElementById('focus-control');
+    const focusReferenceBtn = document.getElementById('focus-reference');
+    const controlNameEl = document.getElementById('control-name');
+    const referenceNameEl = document.getElementById('reference-name');
+    const resultsContainer = document.getElementById('results');
+    
+    // State tracking
+    let controlSet = false;
+    let referenceSet = false;
+    
+    // Initialize by trying to restore previous session
+    window.onload = function() {
+      parent.postMessage({ pluginMessage: { type: 'restore-session' } }, '*');
+    };
+    
+    // Set control button
+    setControlBtn.onclick = function() {
+      parent.postMessage({ pluginMessage: { type: 'set-control' } }, '*');
+    };
+    
+    // Set reference button
+    setReferenceBtn.onclick = function() {
+      parent.postMessage({ pluginMessage: { type: 'set-reference' } }, '*');
+    };
+    
+    // Run scan button
+    runScanBtn.onclick = function() {
+      if (controlSet && referenceSet) {
+        parent.postMessage({ pluginMessage: { type: 'run-scan' } }, '*');
+        resultsContainer.innerHTML = '<div class="no-results">Analyzing design harmony...</div>';
+        resultsContainer.classList.remove('hidden');
+      }
+    };
+    
+    // Focus buttons
+    focusControlBtn.onclick = function() {
+      parent.postMessage({ pluginMessage: { type: 'focus-node', nodeId: 'control' } }, '*');
+    };
+    
+    focusReferenceBtn.onclick = function() {
+      parent.postMessage({ pluginMessage: { type: 'focus-node', nodeId: 'reference' } }, '*');
+    };
+    
+    // Update button states
+    function updateButtonStates() {
+      runScanBtn.disabled = !(controlSet && referenceSet);
+      focusControlBtn.disabled = !controlSet;
+      focusReferenceBtn.disabled = !referenceSet;
+    }
+    
+    // Get score class
+    function getScoreClass(score) {
+      if (score >= 90) return 'excellent';
+      if (score >= 75) return 'good';
+      if (score >= 60) return 'average';
+      if (score >= 40) return 'poor';
+      return 'bad';
+    }
+    
+    // Generate insights based on scores and patterns
+    function generateInsights(componentType, harmony, patterns) {
+      const insights = [];
+      
+      // Color insights
+      if (harmony.colorScore < 70) {
+        insights.push({
+          icon: '🎨',
+          text: `Consider using colors from your design system palette (${patterns.colorPalette.slice(0, 3).join(', ')}${patterns.colorPalette.length > 3 ? '...' : ''})`
+        });
+      } else {
+        insights.push({
+          icon: '✅',
+          text: 'Colors align well with your design system palette.'
+        });
+      }
+      
+      // Shape insights
+      if (harmony.shapeScore < 70) {
+        insights.push({
+          icon: '📐',
+          text: `Your design system typically uses corner radii between ${patterns.cornerRadiusRange.min}px and ${patterns.cornerRadiusRange.max}px.`
+        });
+      }
+      
+      // Typography insights
+      if (harmony.typographyScore < 70) {
+        const fontFamilies = [...new Set(patterns.typographyStyles.map(s => s.family))];
+        insights.push({
+          icon: '📝',
+          text: `Consider using consistent typography: ${fontFamilies.slice(0, 2).join(', ')}${fontFamilies.length > 2 ? '...' : ''}`
+        });
+      }
+      
+      // Spacing insights
+      if (harmony.spacingScore < 70) {
+        insights.push({
+          icon: '↔️',
+          text: `Your design system typically uses spacing values between ${patterns.spacingValues.min}px and ${patterns.spacingValues.max}px.`
+        });
+      }
+      
+      return insights;
+    }
+    
+    // Render harmony score results
+    function renderResults(result) {
+      if (!result.success) {
+        resultsContainer.innerHTML = `<div class="no-results">${result.message}</div>`;
+        return;
+      }
+      
+      const { componentType, harmony, patterns } = result;
+      const scoreClass = getScoreClass(harmony.overallScore);
+      const insights = generateInsights(componentType, harmony, patterns);
+      
+      let html = `
+        <div class="score-card">
+          <div class="score-header ${scoreClass}">
+            <div class="score-title">${componentType} Harmony</div>
+            <div class="score-value">${harmony.overallScore}%</div>
+          </div>
+          <div class="score-details">
+            <div class="score-breakdown">
+              <div class="score-category">
+                <div class="category-score">${harmony.colorScore}%</div>
+                <div class="category-name">Color</div>
+              </div>
+              <div class="score-category">
+                <div class="category-score">${harmony.shapeScore}%</div>
+                <div class="category-name">Shape</div>
+              </div>
+              <div class="score-category">
+                <div class="category-score">${harmony.typographyScore}%</div>
+                <div class="category-name">Type</div>
+              </div>
+              <div class="score-category">
+                <div class="category-score">${harmony.spacingScore}%</div>
+                <div class="category-name">Spacing</div>
+              </div>
+            </div>
+            <div class="insights">
+      `;
+      
+      insights.forEach(insight => {
+        html += `
+          <div class="insight">
+            <div class="insight-icon">${insight.icon}</div>
+            <div class="insight-text">${insight.text}</div>
+          </div>
+        `;
+      });
+      
+      html += `
+            </div>
+          </div>
+        </div>
+      `;
+      
+      resultsContainer.innerHTML = html;
+    }
+    
+    // Message handler
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      
+      if (msg.type === 'control-set') {
+        controlNameEl.textContent = msg.name;
+        controlSet = true;
+        updateButtonStates();
+      }
+      
+      if (msg.type === 'reference-set') {
+        referenceNameEl.textContent = msg.name;
+        referenceSet = true;
+        updateButtonStates();
+      }
+      
+      if (msg.type === 'scan-result') {
+        renderResults(msg);
+      }
+    };
+  </script>
+</body>
+</html>
