@@ -37,6 +37,14 @@ const COMPONENT_TYPES = [
   }
 ];
 
+
+function getValidLibraryNodes(): SceneNode[] {
+  return figma.currentPage.selection.filter((node) =>
+    ['COMPONENT', 'FRAME', 'INSTANCE'].includes(node.type)
+  );
+}
+
+
 // Simple function to detect component type
 function detectComponentType(node: SceneNode): string {
   for (const type of COMPONENT_TYPES) {
@@ -286,8 +294,8 @@ figma.showUI(__html__, { width: 360, height: 480 });
 // Handle messages from the UI
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "set-control") {
-    if (figma.currentPage.selection.length > 0) {
-      controlNode = figma.currentPage.selection[0];
+    if (getValidLibraryNodes().length > 0) {
+      controlNode = getValidLibraryNodes()[0];
       
       // Store control node ID for persistence
       await figma.clientStorage.setAsync("controlNodeId", controlNode.id);
@@ -304,8 +312,8 @@ figma.ui.onmessage = async (msg) => {
   }
   
   if (msg.type === "set-reference") {
-    if (figma.currentPage.selection.length > 0) {
-      referenceNode = figma.currentPage.selection[0];
+    if (getValidLibraryNodes().length > 0) {
+      referenceNode = getValidLibraryNodes()[0];
       
       // Store reference node ID for persistence
       await figma.clientStorage.setAsync("referenceNodeId", referenceNode.id);
