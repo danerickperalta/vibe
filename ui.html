@@ -206,6 +206,10 @@
   <div class="selection-section">
     <div class="selection-card">
       <div class="selection-header">Design Library</div>
+      <div id="control-preview" style="padding: 0 12px;">
+        <!-- Image goes here -->
+      </div>
+           
       <div class="selection-status">
         <div id="control-name" class="selection-name">No library selected</div>
         <button id="focus-control" class="button" disabled>👁️</button>
@@ -400,10 +404,35 @@
       const msg = event.data.pluginMessage;
       
       if (msg.type === 'control-set') {
-        controlNameEl.textContent = msg.name;
-        controlSet = true;
-        updateButtonStates();
-      }
+  document.getElementById('control-name').textContent = msg.name;
+
+  if (msg.preview) {
+    const container = document.getElementById('control-preview');
+    container.innerHTML = "";
+
+    const img = document.createElement('img');
+    img.src = msg.preview;
+    img.alt = "Control preview";
+    img.style.maxHeight = "140px";
+img.style.width = "auto";
+img.style.maxWidth = "100%";
+img.style.objectFit = "contain";
+img.style.borderRadius = "6px";
+img.style.display = "block";
+img.style.margin = "0 auto";
+img.style.backgroundColor = "#EEEEEE";
+img.style.padding = "8px";
+img.style.boxSizing = "border-box";
+
+
+    container.appendChild(img);
+  }
+
+  controlSet = true;
+  updateButtonStates();
+}
+
+
       
       if (msg.type === 'reference-set') {
         referenceNameEl.textContent = msg.name;

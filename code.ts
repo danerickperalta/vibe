@@ -278,10 +278,15 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
     if (figma.currentPage.selection.length > 0) {
       controlNode = figma.currentPage.selection[0];
       await figma.clientStorage.setAsync("controlNodeId", controlNode.id);
-      figma.ui.postMessage({
-        type: "control-set",
-        name: controlNode.name
-      });
+      const bytes = await controlNode.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: 2 } });
+const base64 = figma.base64Encode(bytes);
+
+figma.ui.postMessage({
+  type: "control-set",
+  name: controlNode.name,
+  preview: `data:image/png;base64,${base64}`
+});
+
       figma.notify("✅ Design library set: " + controlNode.name);
     } else {
       figma.notify("⚠️ Please select a node first");
