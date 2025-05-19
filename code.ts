@@ -297,10 +297,15 @@ figma.ui.postMessage({
     if (figma.currentPage.selection.length > 0) {
       referenceNode = figma.currentPage.selection[0];
       await figma.clientStorage.setAsync("referenceNodeId", referenceNode.id);
-      figma.ui.postMessage({
-        type: "reference-set",
-        name: referenceNode.name
-      });
+      const bytes = await referenceNode.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: 2 } });
+const base64 = figma.base64Encode(bytes);
+
+figma.ui.postMessage({
+  type: "reference-set",
+  name: referenceNode.name,
+  preview: `data:image/png;base64,${base64}`
+});
+
       figma.notify("✅ Component to check set: " + referenceNode.name);
     } else {
       figma.notify("⚠️ Please select a node first");

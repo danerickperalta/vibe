@@ -84,6 +84,11 @@
     .primary-button:hover {
       background: #0D8CE0;
     }
+
+    .screenshot-bkg{
+      width: 100%;
+      background: #EEEEEE;
+    }
     
     .primary-button:disabled {
       background: #ccc;
@@ -206,7 +211,7 @@
   <div class="selection-section">
     <div class="selection-card">
       <div class="selection-header">Design Library</div>
-      <div id="control-preview" style="padding: 0 12px;">
+      <div id="control-preview" class="screenshot-bkg">
         <!-- Image goes here -->
       </div>
            
@@ -217,8 +222,11 @@
       <button id="set-control" class="primary-button">Set Design Library</button>
     </div>
     
-    <div class="selection-card">
+    <div class="selection-card">   
       <div class="selection-header">Component to Check</div>
+      <div id="reference-preview" class="screenshot-bkg">
+        <!-- Image will appear here -->
+      </div>   
       <div class="selection-status">
         <div id="reference-name" class="selection-name">No component selected</div>
         <button id="focus-reference" class="button" disabled>👁️</button>
@@ -434,11 +442,34 @@ img.style.boxSizing = "border-box";
 
 
       
-      if (msg.type === 'reference-set') {
-        referenceNameEl.textContent = msg.name;
-        referenceSet = true;
-        updateButtonStates();
-      }
+if (msg.type === 'reference-set') {
+  document.getElementById('reference-name').textContent = msg.name;
+
+  if (msg.preview) {
+    const container = document.getElementById('reference-preview');
+    container.innerHTML = "";
+
+    const img = document.createElement('img');
+    img.src = msg.preview;
+    img.alt = "Reference preview";
+    img.style.maxHeight = "140px";
+    img.style.width = "auto";
+    img.style.maxWidth = "100%";
+    img.style.objectFit = "contain";
+    img.style.borderRadius = "6px";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
+    img.style.backgroundColor = "#EEEEEE";
+    img.style.padding = "8px";
+    img.style.boxSizing = "border-box";
+
+    container.appendChild(img);
+  }
+
+  referenceSet = true;
+  updateButtonStates();
+}
+
       
       if (msg.type === 'scan-result') {
         renderResults(msg);
