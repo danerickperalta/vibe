@@ -367,4 +367,31 @@ figma.ui.postMessage({
       // Error restoring session
     }
   }
+  if (msg.type === "focus-node") {
+    console.log("🔍 Focus requested:", msg.nodeId);
+    let node: SceneNode | null = null;
+
+if (msg.nodeId === "control") {
+  node = controlNode;
+} else if (msg.nodeId === "reference") {
+  node = referenceNode;
+}
+
+if (!node) {
+  const nodeIdKey = msg.nodeId === "control" ? "controlNodeId" : "referenceNodeId";
+  const storedId = await figma.clientStorage.getAsync(nodeIdKey);
+  if (storedId) {
+    node = figma.getNodeById(storedId) as SceneNode;
+  }
+}
+if (node) {
+  figma.currentPage.selection = [node];
+  figma.viewport.scrollAndZoomIntoView([node]);
+  figma.notify("🔍 Focused on " + node.name);
+} else {
+  figma.notify("⚠️ Couldn't find the node to focus on.");
+}
+
+  }
+   
 };
