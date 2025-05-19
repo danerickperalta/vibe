@@ -1,3 +1,7 @@
+/// <reference types="@figma/plugin-typings" />
+// Make sure you have @figma/plugin-typings installed and referenced in your tsconfig.json
+// SceneNode, BaseNode, and ChildrenMixin are provided globally by Figma plugin typings
+
 // code.ts - Streamlined version
 
 // Simple color utility function - keep this
@@ -38,9 +42,9 @@ const COMPONENT_TYPES = [
 ];
 
 // Simple function to detect component type
-function detectComponentType(node: SceneNode): string {
+function detectComponentType(node: any): string {
   for (const type of COMPONENT_TYPES) {
-    if (type.nodeTypes.includes(node.type)) {
+    if ((type.nodeTypes as string[]).includes(node.type)) {
       const nodeName = node.name.toLowerCase();
       for (const pattern of type.namePatterns) {
         if (nodeName.includes(pattern.toLowerCase())) {
@@ -53,8 +57,8 @@ function detectComponentType(node: SceneNode): string {
 }
 
 // Helper function to check if a node is visible
-function isNodeVisible(node: SceneNode): boolean {
-  let current: BaseNode | null = node;
+function isNodeVisible(node: any): boolean {
+  let current: any = node;
   while (current) {
     if ('visible' in current && !current.visible) {
       return false;
@@ -65,10 +69,10 @@ function isNodeVisible(node: SceneNode): boolean {
 }
 
 // Get all visible nodes of a certain component type
-function getComponentsOfType(rootNode: SceneNode, componentType: string | null = null): SceneNode[] {
-  const results: SceneNode[] = [];
+function getComponentsOfType(rootNode: any, componentType: string | null = null): any[] {
+  const results: any[] = [];
   
-  function traverse(node: SceneNode) {
+  function traverse(node: any) {
     if (!isNodeVisible(node)) return;
     
     const type = detectComponentType(node);
@@ -77,7 +81,7 @@ function getComponentsOfType(rootNode: SceneNode, componentType: string | null =
     }
     
     if ('children' in node) {
-      (node as ChildrenMixin & SceneNode).children.forEach(traverse);
+      (node as any).children.forEach(traverse);
     }
   }
   
@@ -86,7 +90,7 @@ function getComponentsOfType(rootNode: SceneNode, componentType: string | null =
 }
 
 // Extract style patterns from a set of components
-function extractStylePatterns(components: SceneNode[]): any {
+async function extractStylePatterns(components: any[]): Promise<any> {
   // Create storage for different pattern types
   const patterns = {
     colors: new Set<string>(),
@@ -96,8 +100,14 @@ function extractStylePatterns(components: SceneNode[]): any {
   };
   
   // Analyze each component
-  components.forEach(node => {
-    // Extract colors
+  for (const node of components) {
+    if ('cornerRadius' in node) {
+      const radius = (node as any).cornerRadius;
+      if (radius !== undefined) {
+        patterns.cornerRadii.push(radius);
+      }
+    }
+
     if ('fills' in node) {
       const nodeWithFills = node as any;
       if (Array.isArray(nodeWithFills.fills)) {
@@ -108,25 +118,21 @@ function extractStylePatterns(components: SceneNode[]): any {
         });
       }
     }
-    
-    // Extract corner radius
-    if ('cornerRadius' in node) {
-      patterns.cornerRadii.push((node as any).cornerRadius);
-    }
-    
-    // Extract typography details
+
     if (node.type === 'TEXT') {
-      const textNode = node as TextNode;
-      if (textNode.fontName) {
+      const textNode = node as any;
+      try {
+        await figma.loadFontAsync(textNode.fontName as FontName);
         patterns.typographyStyles.add(JSON.stringify({
           family: textNode.fontName.family,
           style: textNode.fontName.style,
           size: textNode.fontSize
         }));
+      } catch (e) {
+        // Font may not be accessible
       }
     }
-    
-    // Extract spacing
+
     if ('paddingLeft' in node) {
       const nodeWithPadding = node as any;
       patterns.spacing.push(nodeWithPadding.paddingLeft);
@@ -134,7 +140,7 @@ function extractStylePatterns(components: SceneNode[]): any {
       patterns.spacing.push(nodeWithPadding.paddingTop);
       patterns.spacing.push(nodeWithPadding.paddingBottom);
     }
-  });
+  }
   
   // Calculate ranges and stats
   return {
@@ -154,16 +160,13 @@ function extractStylePatterns(components: SceneNode[]): any {
 }
 
 // Calculate harmony between a component and style patterns
-function calculateHarmony(component: SceneNode, patterns: any): any {
-  // Score for color harmony
+function calculateHarmony(component: any, patterns: any): any {
   let colorScore = 0;
   if ('fills' in component) {
     const nodeWithFills = component as any;
     if (Array.isArray(nodeWithFills.fills) && nodeWithFills.fills.length > 0) {
-      // Check each fill against the color palette
       let colorMatches = 0;
       let totalColors = 0;
-      
       nodeWithFills.fills.forEach((fill: any) => {
         if (fill.type === 'SOLID') {
           totalColors++;
@@ -173,100 +176,86 @@ function calculateHarmony(component: SceneNode, patterns: any): any {
           }
         }
       });
-      
       colorScore = totalColors > 0 ? (colorMatches / totalColors) * 100 : 50;
     }
   }
-  
-  // Score for shape harmony
+
   let shapeScore = 0;
   if ('cornerRadius' in component) {
     const radius = (component as any).cornerRadius;
-    // If radius is within the range, it's a good match
     if (radius >= patterns.cornerRadiusRange.min && radius <= patterns.cornerRadiusRange.max) {
       shapeScore = 100;
     } else {
-      // Otherwise score based on how close it is to the range
       const distanceToRange = Math.min(
         Math.abs(radius - patterns.cornerRadiusRange.min),
         Math.abs(radius - patterns.cornerRadiusRange.max)
       );
-      const maxDistance = Math.max(patterns.cornerRadiusRange.max, 20); // Avoid division by zero
+      const maxDistance = Math.max(patterns.cornerRadiusRange.max, 20);
       shapeScore = Math.max(0, 100 - (distanceToRange / maxDistance * 100));
     }
   }
-  
-  // Score for typography harmony
+
   let typographyScore = 0;
   if (component.type === 'TEXT') {
-    const textNode = component as TextNode;
-    if (textNode.fontName) {
-      // Check if this exact font style is used in the patterns
-      const currentStyle = {
-        family: textNode.fontName.family,
-        style: textNode.fontName.style,
-        size: textNode.fontSize
-      };
-      
-      // Look for matching font family
-      const matchingFamilies = patterns.typographyStyles.filter(
-        (style: any) => style.family === currentStyle.family
-      );
-      
-      if (matchingFamilies.length > 0) {
-        typographyScore += 60; // 60% score for matching family
-        
-        // Check for matching style
-        const matchingStyles = matchingFamilies.filter(
-          (style: any) => style.style === currentStyle.style
+    const textNode = component as any;
+    try {
+      if (textNode.fontName) {
+        const currentStyle = {
+          family: textNode.fontName.family,
+          style: textNode.fontName.style,
+          size: textNode.fontSize
+        };
+
+        const matchingFamilies = patterns.typographyStyles.filter(
+          (style: any) => style.family === currentStyle.family
         );
-        
-        if (matchingStyles.length > 0) {
-          typographyScore += 20; // Additional 20% for matching style
-          
-          // Check for matching size or close to it
-          const matchingSizes = matchingStyles.filter(
-            (style: any) => Math.abs(style.size - currentStyle.size) <= 2
+
+        if (matchingFamilies.length > 0) {
+          typographyScore += 60;
+          const matchingStyles = matchingFamilies.filter(
+            (style: any) => style.style === currentStyle.style
           );
-          
-          if (matchingSizes.length > 0) {
-            typographyScore += 20; // Final 20% for matching size
+          if (matchingStyles.length > 0) {
+            typographyScore += 20;
+            const matchingSizes = matchingStyles.filter(
+              (style: any) => Math.abs(style.size - currentStyle.size) <= 2
+            );
+            if (matchingSizes.length > 0) {
+              typographyScore += 20;
+            }
           }
         }
       }
+    } catch (err) {
+      // Font access error
     }
   }
-  
-  // Score for spacing harmony
+
   let spacingScore = 0;
   if ('paddingLeft' in component) {
     const nodeWithPadding = component as any;
     const paddings = [
       nodeWithPadding.paddingLeft,
-      nodeWithPadding.paddingRight, 
+      nodeWithPadding.paddingRight,
       nodeWithPadding.paddingTop,
       nodeWithPadding.paddingBottom
     ];
-    
-    // Check if paddings are within the spacing range
     let inRangeCount = 0;
     paddings.forEach(padding => {
       if (padding >= patterns.spacingValues.min && padding <= patterns.spacingValues.max) {
         inRangeCount++;
       }
     });
-    
     spacingScore = (inRangeCount / paddings.length) * 100;
   }
-  
-  // Calculate overall harmony score
+
   const overallScore = (
     colorScore * 0.3 +
     shapeScore * 0.3 +
     typographyScore * 0.25 +
     spacingScore * 0.15
   );
-  
+
   return {
     colorScore: Math.round(colorScore),
     shapeScore: Math.round(shapeScore),
@@ -277,64 +266,49 @@ function calculateHarmony(component: SceneNode, patterns: any): any {
 }
 
 // Global variables to store control and reference nodes
-let controlNode: SceneNode | null = null;
-let referenceNode: SceneNode | null = null;
+let controlNode: any = null;
+let referenceNode: any = null;
 
 // Initialize the plugin
 figma.showUI(__html__, { width: 360, height: 480 });
 
 // Handle messages from the UI
-figma.ui.onmessage = async (msg) => {
+figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
   if (msg.type === "set-control") {
     if (figma.currentPage.selection.length > 0) {
       controlNode = figma.currentPage.selection[0];
-      
-      // Store control node ID for persistence
       await figma.clientStorage.setAsync("controlNodeId", controlNode.id);
-      
       figma.ui.postMessage({
         type: "control-set",
         name: controlNode.name
       });
-      
       figma.notify("✅ Design library set: " + controlNode.name);
     } else {
       figma.notify("⚠️ Please select a node first");
     }
   }
-  
+
   if (msg.type === "set-reference") {
     if (figma.currentPage.selection.length > 0) {
       referenceNode = figma.currentPage.selection[0];
-      
-      // Store reference node ID for persistence
       await figma.clientStorage.setAsync("referenceNodeId", referenceNode.id);
-      
       figma.ui.postMessage({
         type: "reference-set",
         name: referenceNode.name
       });
-      
       figma.notify("✅ Component to check set: " + referenceNode.name);
     } else {
       figma.notify("⚠️ Please select a node first");
     }
   }
-  
+
   if (msg.type === "run-scan") {
-    // Validate that both control and reference are set
     if (!controlNode || !referenceNode) {
       figma.notify("⚠️ Please set both a design library and a component to check");
       return;
     }
-    
-    // Get the component type of the reference
     const referenceType = detectComponentType(referenceNode);
-    
-    // Extract all components of the same type from the control
     const controlComponents = getComponentsOfType(controlNode, referenceType);
-    
-    // If no matching components found, notify the user
     if (controlComponents.length === 0) {
       figma.ui.postMessage({
         type: "scan-result",
@@ -343,14 +317,8 @@ figma.ui.onmessage = async (msg) => {
       });
       return;
     }
-    
-    // Extract style patterns from control components
-    const stylePatterns = extractStylePatterns(controlComponents);
-    
-    // Calculate harmony between reference and patterns
+    const stylePatterns = await extractStylePatterns(controlComponents);
     const harmonyScore = calculateHarmony(referenceNode, stylePatterns);
-    
-    // Send results back to the UI
     figma.ui.postMessage({
       type: "scan-result",
       success: true,
@@ -358,56 +326,35 @@ figma.ui.onmessage = async (msg) => {
       patterns: stylePatterns,
       harmony: harmonyScore
     });
-    
     figma.notify("✅ Design harmony analysis complete!");
   }
-  
+
   if (msg.type === "restore-session") {
-    // Try to restore previously selected nodes
     try {
       const controlId = await figma.clientStorage.getAsync("controlNodeId");
       const referenceId = await figma.clientStorage.getAsync("referenceNodeId");
-      
       if (controlId) {
-        controlNode = await figma.getNodeByIdAsync(controlId) as SceneNode;
-        if (controlNode) {
+        const node = await figma.getNodeByIdAsync(controlId);
+        if (node) {
+          controlNode = node;
           figma.ui.postMessage({
             type: "control-set",
-            name: controlNode.name
+            name: node.name
           });
         }
       }
-      
       if (referenceId) {
-        referenceNode = await figma.getNodeByIdAsync(referenceId) as SceneNode;
-        if (referenceNode) {
+        const node = await figma.getNodeByIdAsync(referenceId);
+        if (node) {
+          referenceNode = node;
           figma.ui.postMessage({
             type: "reference-set",
-            name: referenceNode.name
+            name: node.name
           });
         }
       }
     } catch (error) {
-      console.error("Error restoring session:", error);
+      // Error restoring session
     }
-  }
-  
-  if (msg.type === "focus-node") {
-    try {
-      const node = msg.nodeId === "control" 
-        ? controlNode 
-        : (msg.nodeId === "reference" ? referenceNode : null);
-        
-      if (node) {
-        figma.currentPage.selection = [node];
-        figma.viewport.scrollAndZoomIntoView([node]);
-      }
-    } catch (error) {
-      console.error("Error focusing node:", error);
-    }
-  }
-  
-  if (msg.type === "close-plugin") {
-    figma.closePlugin();
   }
 };
