@@ -393,5 +393,15 @@ if (node) {
 }
 
   }
+  if (msg.type === "reset") {
+    controlNode = null;
+    referenceNode = null;
+  
+    await figma.clientStorage.setAsync("controlNodeId", null);
+    await figma.clientStorage.setAsync("referenceNodeId", null);
+  
+    figma.ui.postMessage({ type: "reset-complete" });
+  }
+  
    
 };

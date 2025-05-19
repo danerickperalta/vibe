@@ -255,6 +255,8 @@
     // State tracking
     let controlSet = false;
     let referenceSet = false;
+    let hasScanned = false;
+
     
     // Initialize by trying to restore previous session
     window.onload = function() {
@@ -273,12 +275,16 @@
     
     // Run scan button
     runScanBtn.onclick = function() {
-      if (controlSet && referenceSet) {
-        parent.postMessage({ pluginMessage: { type: 'run-scan' } }, '*');
-        resultsContainer.innerHTML = '<div class="no-results">Analyzing design harmony...</div>';
-        resultsContainer.classList.remove('hidden');
-      }
-    };
+  if (!hasScanned) {
+    if (controlSet && referenceSet) {
+      parent.postMessage({ pluginMessage: { type: 'run-scan' } }, '*');
+      resultsContainer.innerHTML = '<div class="no-results">Analyzing design harmony...</div>';
+      resultsContainer.classList.remove('hidden');
+    }
+  } else {
+    parent.postMessage({ pluginMessage: { type: 'reset' } }, '*');
+  }
+};
     
     // Focus buttons
     focusControlBtn.onclick = function() {
@@ -471,9 +477,29 @@ if (msg.type === 'reference-set') {
 }
 
       
-      if (msg.type === 'scan-result') {
-        renderResults(msg);
-      }
+if (msg.type === 'reset-complete') {
+  hasScanned = false;
+  runScanBtn.textContent = "Check Design Harmony";
+
+  // Clear UI
+  controlSet = false;
+  referenceSet = false;
+  controlNameEl.textContent = "No library selected";
+  referenceNameEl.textContent = "No component selected";
+  document.getElementById('control-preview').innerHTML = "";
+  document.getElementById('reference-preview').innerHTML = "";
+  resultsContainer.innerHTML = "";
+  resultsContainer.classList.add("hidden");
+  updateButtonStates();
+}
+if (msg.type === 'scan-result') {
+  if (msg.success) {
+    hasScanned = true;
+    runScanBtn.textContent = "Restart";
+  }
+
+  renderResults(msg);
+}
     };
   </script>
 </body>
