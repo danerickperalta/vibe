@@ -403,5 +403,16 @@ if (node) {
     figma.ui.postMessage({ type: "reset-complete" });
   }
   
+  if (msg.type === 'clear-control') {
+    controlNode = null;
+    await figma.clientStorage.setAsync("controlNodeId", null);
+    // no need to post back—UI already cleared itself
+  }
+  
+  if (msg.type === 'clear-reference') {
+    referenceNode = null;
+    await figma.clientStorage.setAsync("referenceNodeId", null);
+  }
+  
    
 };

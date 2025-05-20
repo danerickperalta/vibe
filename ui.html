@@ -218,6 +218,8 @@
       <div class="selection-status">
         <div id="control-name" class="selection-name">No library selected</div>
         <button id="focus-control" class="button" disabled>👁️</button>
+        <button id="clear-control" class="button" title="Clear selection" disabled>❌</button>
+
       </div>
       <button id="set-control" class="primary-button">Set Design Library</button>
     </div>
@@ -230,6 +232,7 @@
       <div class="selection-status">
         <div id="reference-name" class="selection-name">No component selected</div>
         <button id="focus-reference" class="button" disabled>👁️</button>
+        <button id="clear-reference" class="button" title="Clear selection" disabled>❌</button>
       </div>
       <button id="set-reference" class="primary-button">Set Component</button>
     </div>
@@ -251,6 +254,9 @@
     const controlNameEl = document.getElementById('control-name');
     const referenceNameEl = document.getElementById('reference-name');
     const resultsContainer = document.getElementById('results');
+    const clearControlBtn   = document.getElementById('clear-control');
+    const clearReferenceBtn = document.getElementById('clear-reference');
+
     
     // State tracking
     let controlSet = false;
@@ -272,6 +278,31 @@
     setReferenceBtn.onclick = function() {
       parent.postMessage({ pluginMessage: { type: 'set-reference' } }, '*');
     };
+
+    clearControlBtn.onclick = () => {
+  // locally reset the UI
+  controlSet = false;
+  controlNameEl.textContent       = "No library selected";
+  document.getElementById('control-preview').innerHTML = "";
+  clearControlBtn.disabled        = true;
+  focusControlBtn.disabled        = true;
+  updateButtonStates();
+
+  // tell the plugin code.ts we cleared it
+  parent.postMessage({ pluginMessage: { type: 'clear-control' } }, '*');
+};
+
+clearReferenceBtn.onclick = () => {
+  referenceSet = false;
+  referenceNameEl.textContent     = "No component selected";
+  document.getElementById('reference-preview').innerHTML = "";
+  clearReferenceBtn.disabled      = true;
+  focusReferenceBtn.disabled      = true;
+  updateButtonStates();
+
+  parent.postMessage({ pluginMessage: { type: 'clear-reference' } }, '*');
+};
+
     
     // Run scan button
     runScanBtn.onclick = function() {
@@ -443,6 +474,9 @@ img.style.boxSizing = "border-box";
   }
 
   controlSet = true;
+  controlNameEl.textContent       = msg.name;
+    clearControlBtn.disabled        = false;
+    focusControlBtn.disabled        = false;
   updateButtonStates();
 }
 
@@ -473,6 +507,9 @@ if (msg.type === 'reference-set') {
   }
 
   referenceSet = true;
+  referenceNameEl.textContent     = msg.name;
+    clearReferenceBtn.disabled      = false;
+    focusReferenceBtn.disabled      = false;
   updateButtonStates();
 }
 
