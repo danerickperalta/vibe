@@ -157,18 +157,17 @@ function calculateHarmony(component: SceneNode, patterns: any): any {
     ? (fills.filter((c: string) => patterns.colorPalette.includes(c)).length / fills.length) * 100
     : 50;
 
-  // Shape (corner radius across all relevant nodes)
+// Shape Score: compare all corner radii across the component
 const allNodes = collectAllNodes(component);
-const cornerRadii = allNodes
-  .filter(n => 'cornerRadius' in n && typeof (n as any).cornerRadius === 'number')
+const componentRadii = allNodes
+  .filter((n): n is SceneNode & { cornerRadius: number } => 'cornerRadius' in n && typeof (n as any).cornerRadius === 'number')
   .map(n => (n as any).cornerRadius as number);
 
-let shapeScore = 50; // fallback
-if (cornerRadii.length > 0) {
-  const inRange = cornerRadii.filter(r =>
-    r >= patterns.cornerRadiusRange.min && r <= patterns.cornerRadiusRange.max
-  );
-  shapeScore = (inRange.length / cornerRadii.length) * 100;
+let shapeScore = 0;
+if (componentRadii.length > 0) {
+  const { min, max } = patterns.cornerRadiusRange;
+  const inRange = componentRadii.filter(r => r >= min && r <= max);
+  shapeScore = (inRange.length / componentRadii.length) * 100;
 }
 
   // Typography
@@ -252,14 +251,17 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
       return;
     }
   
-    // Select baseline and comparison roles
-    const baselineNode = useReferenceAsBaseline ? referenceNode : controlNode;
-    const testNode = useReferenceAsBaseline ? controlNode : referenceNode;
+    const referenceType = detectComponentType(referenceNode);
   
-    const referenceType = detectComponentType(testNode);
-    const baselineComponents = getComponentsOfType(baselineNode, referenceType);
+    // 🔁 Use baseline toggle to determine direction
+    const patternSource = useReferenceAsBaseline ? referenceNode : controlNode;
+    const testTarget = useReferenceAsBaseline ? controlNode : referenceNode;
   
-    if (baselineComponents.length === 0) {
+    const patternComponents = useReferenceAsBaseline
+      ? getComponentsOfType(patternSource) // Analyze all variants in baseline frame
+      : getComponentsOfType(patternSource, referenceType); // Only grab like components from system
+  
+    if (patternComponents.length === 0) {
       figma.ui.postMessage({
         type: "scan-result",
         success: false,
@@ -268,8 +270,8 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
       return;
     }
   
-    const stylePatterns = await extractStylePatterns(baselineComponents);
-    const harmonyScore = calculateHarmony(testNode, stylePatterns);
+    const stylePatterns = await extractStylePatterns(patternComponents);
+    const harmonyScore = calculateHarmony(testTarget, stylePatterns);
   
     figma.ui.postMessage({
       type: "scan-result",
@@ -280,7 +282,8 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
     });
   
     figma.notify("✅ Design harmony analysis complete!");
-  }  
+  }
+  
   if (msg.type === "restore-session") {
     try {
       const controlId = await figma.clientStorage.getAsync("controlNodeId");
