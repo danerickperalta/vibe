@@ -236,7 +236,10 @@
       </div>
       <button id="set-reference" class="primary-button">Set Component</button>
     </div>
-    
+    <label style="display: flex; align-items: center; margin-top: 12px;">
+      <input type="checkbox" id="toggle-mode" style="margin-right: 8px;">
+      Use reference as style baseline
+    </label>    
     <button id="run-scan" class="scan-button" disabled>Check Design Harmony</button>
   </div>
   
@@ -268,6 +271,16 @@
     window.onload = function() {
       parent.postMessage({ pluginMessage: { type: 'restore-session' } }, '*');
     };
+
+    const toggleBaselineCheckbox = document.getElementById('toggle-mode');
+toggleBaselineCheckbox.addEventListener('change', (e) => {
+  parent.postMessage({
+    pluginMessage: {
+      type: 'toggle-baseline',
+      value: e.target.checked
+    }
+  }, '*');
+});
     
     // Set control button
     setControlBtn.onclick = function() {
@@ -303,12 +316,17 @@ clearReferenceBtn.onclick = () => {
   parent.postMessage({ pluginMessage: { type: 'clear-reference' } }, '*');
 };
 
-    
+const useReferenceAsBaseline = document.getElementById('use-reference-as-baseline');
     // Run scan button
     runScanBtn.onclick = function() {
   if (!hasScanned) {
     if (controlSet && referenceSet) {
-      parent.postMessage({ pluginMessage: { type: 'run-scan' } }, '*');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'run-scan',
+          swap: (useReferenceAsBaseline && useReferenceAsBaseline.checked)
+        }
+      }, '*');
       resultsContainer.innerHTML = '<div class="no-results">Analyzing design harmony...</div>';
       resultsContainer.classList.remove('hidden');
     }

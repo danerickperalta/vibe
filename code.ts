@@ -218,6 +218,10 @@ figma.showUI(__html__, { width: 360, height: 480 });
 
 // Handle messages from the UI
 figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
+  let useReferenceAsBaseline = false;
+  if (msg.type === "toggle-baseline") {
+    useReferenceAsBaseline = msg.value;
+  }  
   if (msg.type === "set-control") {
     if (figma.currentPage.selection.length > 0) {
       controlNode = figma.currentPage.selection[0];
@@ -247,17 +251,36 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
       figma.notify("⚠️ Please set both a design library and a component to check");
       return;
     }
-    const referenceType = detectComponentType(referenceNode);
-    const controlComponents = getComponentsOfType(controlNode, referenceType);
-    if (controlComponents.length === 0) {
-      figma.ui.postMessage({ type: "scan-result", success: false, message: `No ${referenceType} components found in the design library.` });
+  
+    // Select baseline and comparison roles
+    const baselineNode = useReferenceAsBaseline ? referenceNode : controlNode;
+    const testNode = useReferenceAsBaseline ? controlNode : referenceNode;
+  
+    const referenceType = detectComponentType(testNode);
+    const baselineComponents = getComponentsOfType(baselineNode, referenceType);
+  
+    if (baselineComponents.length === 0) {
+      figma.ui.postMessage({
+        type: "scan-result",
+        success: false,
+        message: `No ${referenceType} components found in the selected baseline.`
+      });
       return;
     }
-    const stylePatterns = await extractStylePatterns(controlComponents);
-    const harmonyScore = calculateHarmony(referenceNode, stylePatterns);
-    figma.ui.postMessage({ type: "scan-result", success: true, componentType: referenceType, patterns: stylePatterns, harmony: harmonyScore });
+  
+    const stylePatterns = await extractStylePatterns(baselineComponents);
+    const harmonyScore = calculateHarmony(testNode, stylePatterns);
+  
+    figma.ui.postMessage({
+      type: "scan-result",
+      success: true,
+      componentType: referenceType,
+      patterns: stylePatterns,
+      harmony: harmonyScore
+    });
+  
     figma.notify("✅ Design harmony analysis complete!");
-  }
+  }  
   if (msg.type === "restore-session") {
     try {
       const controlId = await figma.clientStorage.getAsync("controlNodeId");
