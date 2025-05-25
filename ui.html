@@ -4,6 +4,34 @@
   <meta charset="UTF-8">
   <title>Hoot Spotter</title>
   <style>
+     .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .tab {
+    padding: 6px 12px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .tab.active {
+    background: #007aff;
+    color: white;
+  }
+
+  .panel {
+    display: block;
+  }
+
+  .hidden {
+    display: none;
+  }
+   
     body {
       font-family: system-ui, sans-serif;
       padding: 16px;
@@ -203,10 +231,21 @@
   </style>
 </head>
 <body>
+  
   <div class="header">
     <h1>Hoot Spotter</h1>
     <span class="logo">🦉</span>
   </div>
+  <!-- Mode Tabs -->
+<div class="tabs">
+  <button class="tab active" data-mode="control">Control</button>
+  <button class="tab" data-mode="reference">Reference</button>
+</div>
+
+<!-- Mode-specific content containers -->
+<div class="panel" id="control-panel">Control panel content goes here.</div>
+<div class="panel hidden" id="reference-panel">Reference panel content goes here.</div>
+
   
   <div class="selection-section">
     <div class="selection-card">
@@ -557,5 +596,27 @@ if (msg.type === 'scan-result') {
 }
     };
   </script>
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const panels = {
+      control: document.getElementById("control-panel"),
+      reference: document.getElementById("reference-panel"),
+    };
+  
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        // Toggle tab UI
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+  
+        // Toggle content panels
+        const mode = tab.dataset.mode;
+        Object.keys(panels).forEach(key => {
+          panels[key].classList.toggle("hidden", key !== mode);
+        });
+      });
+    });
+  </script>
+  
 </body>
 </html>
