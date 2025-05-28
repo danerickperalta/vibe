@@ -37,17 +37,24 @@
       color: #333;
     }
 
+    .header-container {
+      background: #1D1929;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 16px 16px 16px;
+      position: relative;
+    }
 
     .header {
       display: flex;
       align-items: center;
-      background: #1D1929;
-      padding: 16px 16px 0px 16px;
     }
     
     .header h1 {
       font-size: 18px;
-      font-weight: 400;
+      font-weight: 500;
       color: white;
     }
     
@@ -55,36 +62,70 @@
       font-size: 20px;
     }
 
+    .tooltip-icon {
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .tooltip-icon img {
+      width: 18px;
+      height: 18px;
+      filter: brightness(0) invert(1); /* This will make the SVG white */
+    }
+
+    .tooltip-icon:hover {
+      opacity: 1;
+    }
+
     .intro-text {
-      padding: 8px 16px 16px 16px;
       font-size: 14px;
       color: white;
-      background: #1D1929;
+      display: none;
+      padding: 1px 16px 16px 16px;
+      background-color: #1D1929;
+    }
+
+    .intro-text.visible {
+      display: block;
     }
     
     .selection-section {
       padding: 32px 16px 4px 16px;
+      border-radius: 4px;
+      overflow: hidden;
     }
     
     .selection-card {
       border: 1px solid #ddd;
       border-radius: 4px;
-      padding: 16px;
       margin-bottom: 12px;
       background-color: #EEEEEE;
     }
     
-  
-  
-    .selection-status {
+    .selection-content {
       display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .selection-status {
+      display: none;
       justify-content: space-between;
       align-items: center;
       gap: 4px;
+      background-color: #ffffff;
+      padding: 4px 16px 4px 16px;
+    }
+    
+    .selection-status.visible {
+      display: flex;
     }
     
     .selection-name {
-      color: #666;
+      color: #1D1929;
       font-size: 14px;
       white-space: nowrap;
       overflow: hidden;
@@ -93,16 +134,18 @@
     }
     
     .button {
-      padding: 10px 12px;
-      border-radius: 0px;
+      padding: 8px 8px;
+      border-radius: 100px;
       border: 0px solid #ddd;
+      background-color: transparent;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     
     .button:hover {
       background: #f5f5f5;
-      border-radius: 4px;
+      padding: 8px 8px;
+      border-radius: 100px;
     }
     
     .primary-button {
@@ -111,7 +154,7 @@
       padding: 12px;
       width: 100%;
       border-radius: 4px;
-      border: 1px solid #E8E8EA;
+      border: 1px solid transparent;
     }
     
     .primary-button:hover {
@@ -151,6 +194,18 @@
       border: 1px solid #5254F6;
       cursor: pointer;
       transition: all 0.2s ease;
+    }
+
+    .scan-button.restart {
+      background: #FFE8E8;
+      color: #FF4D4D;
+      border: 1px solid #FF4D4D;
+    }
+
+    .scan-button.restart:hover {
+      background: #FF4D4D;
+      color: #ffffff;
+      border: 1px solid #FF4D4D;
     }
 
     .button-container {
@@ -284,15 +339,24 @@
       text-align: center;
       color: #666;
     }
+
+  
   </style>
 </head>
 <body>
-    </div><div class="header">
-     <h1>Hoot Spotter</h1>
-      <span class="logo">🦉</span>
-   </div>
-   <div class="intro-text">
-      <p>Hoot Spotter is your guide for staying visually aligned across projects. Choose a Control, the source of truth for your design style. Then select a Reference to see how well it matches your shared visual goals.</p>
+    <div class="header-container">
+      <div class="header">
+        <h1>Hoot Spotter</h1>
+        <span class="logo">🦉</span>
+      </div>
+      <div class="tooltip-icon" id="tooltip-toggle">
+        <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.18 18C18.6502 16.6633 19.5783 15.5362 20.7999 14.8183C22.0215 14.1003 23.4578 13.8379 24.8544 14.0774C26.2509 14.317 27.5176 15.043 28.4302 16.1271C29.3427 17.2111 29.8421 18.583 29.84 20C29.84 24 23.84 26 23.84 26M24 34H24.02M44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24Z" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="intro-text" id="intro-text">
+      <p>Hoot Spotter is your guide for staying visually aligned across projects.<br><br>1. Choose a Control, the source of truth for your design style.<br><br>2. Then select a Reference to see how well it matches your shared visual goals.</p>
     </div>
     <!-- Mode Tabs -->
 <div class="tabs">
@@ -304,27 +368,30 @@
   <div class="selection-section">
     <div class="selection-card">
       <div id="control-preview" class="screenshot-bkg">
-        <!-- Image goes here -->
+        <!-- Image or placeholder goes here -->
       </div>
-      <div class="selection-status">
-        <div id="control-name" class="selection-name">No library selected</div>
-        <button id="focus-control" class="button" disabled>👁️</button>
-        <button id="clear-control" class="button" title="Clear selection" disabled>❌</button>
-
+      <div class="selection-content">
+        <div class="selection-status">
+          <div id="control-name" class="selection-name">No library selected</div>
+          <button id="focus-control" class="button" disabled>👁️</button>
+          <button id="clear-control" class="button" title="Clear selection" disabled>❌</button>
+        </div>
+        <button id="set-control" class="primary-button">Set Design Library</button>
       </div>
-      <button id="set-control" class="primary-button">Set Design Library</button>
     </div>
     
     <div class="selection-card">   
       <div id="reference-preview" class="screenshot-bkg">
-        <!-- Image will appear here -->
-      </div>   
-      <div class="selection-status">
-        <div id="reference-name" class="selection-name">No component selected</div>
-        <button id="focus-reference" class="button" disabled>👁️</button>
-        <button id="clear-reference" class="button" title="Clear selection" disabled>❌</button>
+        <!-- Image or placeholder will appear here -->
       </div>
-      <button id="set-reference" class="primary-button">Set Component</button>
+      <div class="selection-content">
+        <div class="selection-status">
+          <div id="reference-name" class="selection-name">No component selected</div>
+          <button id="focus-reference" class="button" disabled>👁️</button>
+          <button id="clear-reference" class="button" title="Clear selection" disabled>❌</button>
+        </div>
+        <button id="set-reference" class="primary-button">Set Component</button>
+      </div>
     </div>
   </div>
   
@@ -374,30 +441,40 @@
     };
 
     clearControlBtn.onclick = () => {
-  // locally reset the UI
-  controlSet = false;
-  controlNameEl.textContent       = "No library selected";
-  document.getElementById('control-preview').innerHTML = "";
-  clearControlBtn.disabled        = true;
-  focusControlBtn.disabled        = true;
-  updateButtonStates();
+      // locally reset the UI for preview and status
+      controlSet = false;
+      controlNameEl.textContent = "No library selected";
+      document.getElementById('control-preview').innerHTML = "";
+      clearControlBtn.disabled = true;
+      focusControlBtn.disabled = true;
 
-  // tell the plugin code.ts we cleared it
-  parent.postMessage({ pluginMessage: { type: 'clear-control' } }, '*');
-};
+      // Updated: Show primary button, hide selection status
+      setControlBtn.style.display = 'block';
+      document.querySelector('.selection-card:first-child .selection-status').classList.remove('visible');
 
-clearReferenceBtn.onclick = () => {
-  referenceSet = false;
-  referenceNameEl.textContent     = "No component selected";
-  document.getElementById('reference-preview').innerHTML = "";
-  clearReferenceBtn.disabled      = true;
-  focusReferenceBtn.disabled      = true;
-  updateButtonStates();
+      updateButtonStates();
 
-  parent.postMessage({ pluginMessage: { type: 'clear-reference' } }, '*');
-};
+      // tell the plugin code.ts we cleared it
+      parent.postMessage({ pluginMessage: { type: 'clear-control' } }, '*');
+    };
 
-// Run scan button
+    clearReferenceBtn.onclick = () => {
+      referenceSet = false;
+      referenceNameEl.textContent = "No component selected";
+      document.getElementById('reference-preview').innerHTML = "";
+      clearReferenceBtn.disabled = true;
+      focusReferenceBtn.disabled = true;
+
+      // Updated: Show primary button, hide selection status
+      setReferenceBtn.style.display = 'block';
+      document.querySelector('.selection-card:last-child .selection-status').classList.remove('visible');
+
+      updateButtonStates();
+
+      parent.postMessage({ pluginMessage: { type: 'clear-reference' } }, '*');
+    };
+
+    // Run scan button
     runScanBtn.onclick = function() {
   if (!hasScanned) {
     if (controlSet && referenceSet) {
@@ -586,94 +663,107 @@ clearReferenceBtn.onclick = () => {
       const msg = event.data.pluginMessage;
       
       if (msg.type === 'control-set') {
-  document.getElementById('control-name').textContent = msg.name;
+        document.getElementById('control-name').textContent = msg.name;
 
-  if (msg.preview) {
-    const container = document.getElementById('control-preview');
-    container.innerHTML = "";
+        if (msg.preview) {
+          const container = document.getElementById('control-preview');
+          container.innerHTML = "";
 
-    const img = document.createElement('img');
-    img.src = msg.preview;
-    img.alt = "Control preview";
-    img.style.maxHeight = "140px";
-img.style.width = "auto";
-img.style.maxWidth = "100%";
-img.style.objectFit = "contain";
-img.style.borderRadius = "6px";
-img.style.display = "block";
-img.style.margin = "0 auto";
-img.style.backgroundColor = "#EEEEEE";
-img.style.padding = "8px";
-img.style.boxSizing = "border-box";
+          const img = document.createElement('img');
+          img.src = msg.preview;
+          img.alt = "Control preview";
+          img.style.maxHeight = "140px";
+          img.style.width = "auto";
+          img.style.maxWidth = "100%";
+          img.style.objectFit = "contain";
+          img.style.borderRadius = "6px";
+          img.style.display = "block";
+          img.style.margin = "0 auto";
+          img.style.backgroundColor = "#EEEEEE";
+          img.style.padding = "8px";
+          img.style.boxSizing = "border-box";
 
+          container.appendChild(img);
+        }
 
-    container.appendChild(img);
-  }
+        controlSet = true;
+        controlNameEl.textContent       = msg.name;
+        clearControlBtn.disabled        = false;
+        focusControlBtn.disabled        = false;
+        updateButtonStates();
 
-  controlSet = true;
-  controlNameEl.textContent       = msg.name;
-    clearControlBtn.disabled        = false;
-    focusControlBtn.disabled        = false;
-  updateButtonStates();
-}
+        // Updated: Hide primary button, show selection status
+        setControlBtn.style.display = 'none';
+        document.querySelector('.selection-card:first-child .selection-status').classList.add('visible');
+      }
 
+      if (msg.type === 'reference-set') {
+        document.getElementById('reference-name').textContent = msg.name;
 
-      
-if (msg.type === 'reference-set') {
-  document.getElementById('reference-name').textContent = msg.name;
+        if (msg.preview) {
+          const container = document.getElementById('reference-preview');
+          container.innerHTML = "";
 
-  if (msg.preview) {
-    const container = document.getElementById('reference-preview');
-    container.innerHTML = "";
+          const img = document.createElement('img');
+          img.src = msg.preview;
+          img.alt = "Reference preview";
+          img.style.maxHeight = "140px";
+          img.style.width = "auto";
+          img.style.maxWidth = "100%";
+          img.style.objectFit = "contain";
+          img.style.borderRadius = "6px";
+          img.style.display = "block";
+          img.style.margin = "0 auto";
+          img.style.backgroundColor = "#EEEEEE";
+          img.style.padding = "8px";
+          img.style.boxSizing = "border-box";
 
-    const img = document.createElement('img');
-    img.src = msg.preview;
-    img.alt = "Reference preview";
-    img.style.maxHeight = "140px";
-    img.style.width = "auto";
-    img.style.maxWidth = "100%";
-    img.style.objectFit = "contain";
-    img.style.borderRadius = "6px";
-    img.style.display = "block";
-    img.style.margin = "0 auto";
-    img.style.backgroundColor = "#EEEEEE";
-    img.style.padding = "8px";
-    img.style.boxSizing = "border-box";
+          container.appendChild(img);
+        }
 
-    container.appendChild(img);
-  }
+        referenceSet = true;
+        referenceNameEl.textContent     = msg.name;
+        clearReferenceBtn.disabled      = false;
+        focusReferenceBtn.disabled      = false;
+        updateButtonStates();
 
-  referenceSet = true;
-  referenceNameEl.textContent     = msg.name;
-    clearReferenceBtn.disabled      = false;
-    focusReferenceBtn.disabled      = false;
-  updateButtonStates();
-}
+        // Updated: Hide primary button, show selection status
+        setReferenceBtn.style.display = 'none';
+        document.querySelector('.selection-card:last-child .selection-status').classList.add('visible');
+      }
 
-      
-if (msg.type === 'reset-complete') {
-  hasScanned = false;
-  runScanBtn.textContent = "Check Design Harmony";
+      if (msg.type === 'reset-complete') {
+        hasScanned = false;
+        runScanBtn.textContent = "Check Design Harmony";
+        runScanBtn.classList.remove('restart');
 
-  // Clear UI
-  controlSet = false;
-  referenceSet = false;
-  controlNameEl.textContent = "No library selected";
-  referenceNameEl.textContent = "No component selected";
-  document.getElementById('control-preview').innerHTML = "";
-  document.getElementById('reference-preview').innerHTML = "";
-  resultsContainer.innerHTML = "";
-  resultsContainer.classList.add("hidden");
-  updateButtonStates();
-}
-if (msg.type === 'scan-result') {
-  if (msg.success) {
-    hasScanned = true;
-    runScanBtn.textContent = "Restart";
-  }
+        // Clear UI for preview and status
+        controlSet = false;
+        referenceSet = false;
+        controlNameEl.textContent = "No library selected";
+        referenceNameEl.textContent = "No component selected";
+        document.getElementById('control-preview').innerHTML = "";
+        document.getElementById('reference-preview').innerHTML = "";
+        resultsContainer.innerHTML = "";
+        resultsContainer.classList.add("hidden");
+        
+        // Updated: Show primary buttons, hide selection status
+        setControlBtn.style.display = 'block';
+        document.querySelector('.selection-card:first-child .selection-status').classList.remove('visible');
+        setReferenceBtn.style.display = 'block';
+        document.querySelector('.selection-card:last-child .selection-status').classList.remove('visible');
+        
+        updateButtonStates();
+      }
+      if (msg.type === 'scan-result') {
+        if (msg.success) {
+          hasScanned = true;
+          runScanBtn.textContent = "Reset";
+          runScanBtn.classList.add('restart');
+        }
 
-  renderResults(msg);
-}
+        renderResults(msg);
+      }
     };
   </script>
   <script>
@@ -698,5 +788,13 @@ if (msg.type === 'scan-result') {
     });
   </script>
   
+  <script>
+    const tooltipToggle = document.getElementById('tooltip-toggle');
+    const introText = document.getElementById('intro-text');
+
+    tooltipToggle.addEventListener('click', () => {
+      introText.classList.toggle('visible');
+    });
+  </script>
 </body>
 </html>
