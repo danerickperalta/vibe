@@ -37,11 +37,12 @@
       color: #333;
     }
 
+
     .header {
       display: flex;
       align-items: center;
-      padding: 16px 16px 16px 16px;
       background: #1D1929;
+      padding: 16px 16px 0px 16px;
     }
     
     .header h1 {
@@ -53,9 +54,16 @@
     .header .logo {
       font-size: 20px;
     }
+
+    .intro-text {
+      padding: 8px 16px 16px 16px;
+      font-size: 14px;
+      color: white;
+      background: #1D1929;
+    }
     
     .selection-section {
-      padding: 32px 16px 32px 16px;
+      padding: 32px 16px 4px 16px;
     }
     
     .selection-card {
@@ -64,12 +72,10 @@
       padding: 16px;
       margin-bottom: 12px;
       background-color: #EEEEEE;
-      box-shadow: -2px -2px 1px 0px rgba(0, 0, 0, 0.15) inset, 2px 2px 4px 0px rgba(0, 0, 0, 0.15), 4px 4px 4px 0px rgba(255, 255, 255, 0.50) inset;
-
     }
     
   
-    
+  
     .selection-status {
       display: flex;
       justify-content: space-between;
@@ -126,29 +132,41 @@
     }
     
     .scan-button {
-      background: #5254F6;
-      border: 0px;
-      border-color: #FFA000;
-      color: #ffffff;
+      background: #dcddff;
+      color: #5254F6;
+      border: 1px solid #5254F6;
+      cursor: pointer;
       width: 100%;
       padding: 12px;
       font-size: 16px;
       font-weight: 400;
       border-radius: 4px;
       width: 100%;
-      box-shadow: -2px -2px 1px 0px rgba(0, 0, 0, 0.15) inset, 2px 2px 4px 0px rgba(0, 0, 0, 0.15), 4px 4px 4px 0px rgba(255, 255, 255, 0.50) inset;
     }
     
     .scan-button:hover {
-      background: #FFB300;
+      background: #5254F6;
+      border: 1px solid #5254F6;
+      color: #ffffff;
+      border: 1px solid #5254F6;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .button-container {
-      padding: 0px 16px 32px 16px;
+      padding: 0px 16px 16px 16px;
       display: flex;
     }
     
+
+    .master-results {
+      padding: 0px 16px 16px 16px;
+    }
+
     .results {
+      border: 1px solid #E8E8EA;
+      border-radius: 4px;
+      overflow: hidden;
     }
     
     .hidden {
@@ -157,32 +175,53 @@
     
     .score-card {
       overflow: hidden;
-      border-radius: 4px;
-      padding: 0px 16px 32px 16px;
-      border-radius: 4px;
     }
     
     .score-header {
-      padding: 16px;
+      padding: 24px 16px 24px 16px;
       color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
     }
     
-    .excellent { background: #4CAF50; }
-    .good { background: #8BC34A; }
-    .average { background: #FFC107; }
-    .poor { background: #FF9800; }
-    .bad { background: #F44336; }
+    .excellent {
+      background: #9dffa0;
+      color: #1D1929;
+    }
+  
+    .good {
+      background: #e3ff9e;
+      color: #1D1929;
+    }
+
+    .average {
+      background: #ffe494;
+      color: #1D1929;
+    }
+
+    .poor {
+      background: #ffc36a;
+      color: #1D1929;
+    }
+
+    .bad {
+      background: #ffb4ae;
+      color: #1D1929;
+    }
     
     .score-title {
-      font-weight: 600;
+      font-weight: 400;
     }
     
     .score-value {
       font-size: 20px;
       font-weight: bold;
+      color: #1D1929;
+      padding: 2px 8px 2px 8px;
+      background-color: rgb(255, 255, 255);
+      border-radius: 100px;
     }
     
     .score-details {
@@ -198,21 +237,27 @@
     .score-category {
       text-align: center;
       flex: 1;
-      padding-bottom: 8px;
+      padding-bottom: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     
     .category-score {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
     }
     
     .category-name {
-      font-size: 12px;
+      font-size: 14px;
       color: #666;
     }
     
     .insights {
-      border-top: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* or however much vertical space you want */
+      padding: 8px;
     }
     
     .insight {
@@ -242,10 +287,13 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Hoot Spotter</h1>
-    <span class="logo">🦉</span>
-  </div>
+    </div><div class="header">
+     <h1>Hoot Spotter</h1>
+      <span class="logo">🦉</span>
+   </div>
+   <div class="intro-text">
+      <p>Hoot Spotter is your guide for staying visually aligned across projects. Choose a Control, the source of truth for your design style. Then select a Reference to see how well it matches your shared visual goals.</p>
+    </div>
     <!-- Mode Tabs -->
 <div class="tabs">
   <button class="tab active" data-mode="control">Control</button>
@@ -258,7 +306,6 @@
       <div id="control-preview" class="screenshot-bkg">
         <!-- Image goes here -->
       </div>
-           
       <div class="selection-status">
         <div id="control-name" class="selection-name">No library selected</div>
         <button id="focus-control" class="button" disabled>👁️</button>
@@ -281,8 +328,10 @@
     </div>
   </div>
   
-  <div id="results" class="results hidden">
+  <div class="master-results">
+   <div id="results" class="results hidden">
     <!-- Results will be populated here -->
+    </div>
   </div>
   <div class="button-container">
     <button id="run-scan" class="scan-button" disabled>Check Design Harmony</button>
@@ -390,9 +439,48 @@ clearReferenceBtn.onclick = () => {
       return 'bad';
     }
     
+    // Get component type based on harmony score
+    function getComponentType(harmony) {
+      // Determine the most significant category
+      const scores = [
+        { type: 'Color', score: harmony.colorScore },
+        { type: 'Shape', score: harmony.shapeScore },
+        { type: 'Typography', score: harmony.typographyScore },
+        { type: 'Spacing', score: harmony.spacingScore }
+      ];
+      
+      // Sort by score to find the highest scoring category
+      scores.sort((a, b) => b.score - a.score);
+      
+      // If the highest score is significantly higher than others, use that type
+      if (scores[0].score > scores[1].score + 20) {
+        return scores[0].type;
+      }
+      
+      // If scores are close, return "Component" as a generic type
+      return "Component";
+    }
+
+    // Get harmony message based on score and component type
+    function getHarmonyMessage(score, componentType) {
+      if (score >= 90) {
+        return `${componentType} perfectly matches your design system!`;
+      } else if (score >= 75) {
+        return `${componentType} aligns well with your design system.`;
+      } else if (score >= 60) {
+        return `${componentType} has some inconsistencies with your design system.`;
+      } else if (score >= 40) {
+        return `${componentType} needs significant adjustments to match your design system.`;
+      } else {
+        return `${componentType} requires a complete redesign to match your design system.`;
+      }
+    }
+    
     // Generate insights based on scores and patterns
     function generateInsights(componentType, harmony, patterns) {
       const insights = [];
+      
+
       
       // Color insights
       if (harmony.colorScore < 70) {
@@ -442,14 +530,15 @@ clearReferenceBtn.onclick = () => {
         return;
       }
       
-      const { componentType, harmony, patterns } = result;
+      const { harmony, patterns } = result;
       const scoreClass = getScoreClass(harmony.overallScore);
+      const componentType = getComponentType(harmony);
       const insights = generateInsights(componentType, harmony, patterns);
       
       let html = `
         <div class="score-card">
           <div class="score-header ${scoreClass}">
-            <div class="score-title">${componentType} Harmony</div>
+            <div class="score-title">${getHarmonyMessage(harmony.overallScore, componentType)}</div>
             <div class="score-value">${harmony.overallScore}%</div>
           </div>
           <div class="score-details">
