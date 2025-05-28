@@ -353,10 +353,7 @@ figma.showUI(__html__, { width: 360, height: 480 });
 
 // Handle messages from the UI
 figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
-  let useReferenceAsBaseline = false;
-  if (msg.type === "toggle-baseline") {
-    useReferenceAsBaseline = msg.value;
-  }  
+  
   if (msg.type === "set-control") {
     if (figma.currentPage.selection.length > 0) {
       controlNode = figma.currentPage.selection[0];
@@ -390,12 +387,9 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
     const referenceType = detectComponentType(referenceNode);
   
     // 🔁 Use baseline toggle to determine direction
-    const patternSource = useReferenceAsBaseline ? referenceNode : controlNode;
-    const testTarget = useReferenceAsBaseline ? controlNode : referenceNode;
-  
-    const patternComponents = useReferenceAsBaseline
-      ? getComponentsOfType(patternSource) // Analyze all variants in baseline frame
-      : getComponentsOfType(patternSource, referenceType); // Only grab like components from system
+    const patternSource = controlNode;
+    const testTarget = referenceNode;
+    const patternComponents = getComponentsOfType(patternSource, referenceType); // Only grab like components from system
   
     if (patternComponents.length === 0) {
       figma.ui.postMessage({
@@ -407,10 +401,8 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
     }
   
     const stylePatterns = await extractStylePatterns(patternComponents);
-    if (!useReferenceAsBaseline) {
-      stylePatterns.components = patternComponents; // This is required for Component Match Mode
-    }
-    const harmonyScore = calculateHarmony(testTarget, stylePatterns, useReferenceAsBaseline);
+    stylePatterns.components = patternComponents;
+    const harmonyScore = calculateHarmony(testTarget, stylePatterns, true);
   
     figma.ui.postMessage({
       type: "scan-result",
