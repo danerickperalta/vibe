@@ -6,22 +6,20 @@
   <style>
      .tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
+    background: #EEE;
+    padding: 16px 16px 0px 16px;
   }
 
   .tab {
-    padding: 6px 12px;
-    background: #e0e0e0;
+    padding: 8px 16px;
     border: none;
-    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .tab.active {
-    background: #007aff;
-    color: white;
+    background: white;
+    color: black;
   }
 
   .panel {
@@ -34,48 +32,49 @@
    
     body {
       font-family: system-ui, sans-serif;
-      padding: 16px;
+      padding: 0px;
       margin: 0;
       color: #333;
     }
-    
+
     .header {
       display: flex;
       align-items: center;
-      margin-bottom: 20px;
+      padding: 16px 16px 16px 16px;
+      background: #1D1929;
     }
     
     .header h1 {
-      margin: 0;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 400;
+      color: white;
     }
     
     .header .logo {
-      margin-left: 8px;
       font-size: 20px;
     }
     
     .selection-section {
-      margin-bottom: 24px;
+      padding: 32px 16px 32px 16px;
     }
     
     .selection-card {
       border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 4px;
+      padding: 16px;
       margin-bottom: 12px;
+      background-color: #EEEEEE;
+      box-shadow: -2px -2px 1px 0px rgba(0, 0, 0, 0.15) inset, 2px 2px 4px 0px rgba(0, 0, 0, 0.15), 4px 4px 4px 0px rgba(255, 255, 255, 0.50) inset;
+
     }
     
-    .selection-header {
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
+  
     
     .selection-status {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 4px;
     }
     
     .selection-name {
@@ -84,33 +83,35 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 200px;
+      width: 100%;
     }
     
     .button {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      background: white;
+      padding: 10px 12px;
+      border-radius: 0px;
+      border: 0px solid #ddd;
       cursor: pointer;
-      font-weight: 500;
       transition: all 0.2s ease;
     }
     
     .button:hover {
       background: #f5f5f5;
+      border-radius: 4px;
     }
     
     .primary-button {
-      background: #18A0FB;
-      border-color: #0D8CE0;
-      color: white;
+      background: white;
+      color: #5254F6;
+      padding: 12px;
       width: 100%;
-      margin-top: 8px;
+      border-radius: 4px;
+      border: 1px solid #E8E8EA;
     }
     
     .primary-button:hover {
-      background: #0D8CE0;
+      border-radius: 4px;
+      border: 1px solid #5254F6; 
+      cursor: pointer;
     }
 
     .screenshot-bkg{
@@ -125,21 +126,29 @@
     }
     
     .scan-button {
-      background: #FFC107;
+      background: #5254F6;
+      border: 0px;
       border-color: #FFA000;
-      color: #333;
+      color: #ffffff;
       width: 100%;
       padding: 12px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 400;
+      border-radius: 4px;
+      width: 100%;
+      box-shadow: -2px -2px 1px 0px rgba(0, 0, 0, 0.15) inset, 2px 2px 4px 0px rgba(0, 0, 0, 0.15), 4px 4px 4px 0px rgba(255, 255, 255, 0.50) inset;
     }
     
     .scan-button:hover {
       background: #FFB300;
     }
+
+    .button-container {
+      padding: 0px 16px 32px 16px;
+      display: flex;
+    }
     
     .results {
-      margin-top: 20px;
     }
     
     .hidden {
@@ -147,10 +156,10 @@
     }
     
     .score-card {
-      border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      padding: 0px 16px 32px 16px;
+      border-radius: 4px;
     }
     
     .score-header {
@@ -177,19 +186,19 @@
     }
     
     .score-details {
-      padding: 16px;
       background: white;
     }
     
     .score-breakdown {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 16px;
+      padding: 16px;
     }
     
     .score-category {
       text-align: center;
       flex: 1;
+      padding-bottom: 8px;
     }
     
     .category-score {
@@ -204,16 +213,18 @@
     
     .insights {
       border-top: 1px solid #eee;
-      padding-top: 12px;
     }
     
     .insight {
-      margin-bottom: 8px;
+      padding: 8px 16px 8px 16px;
       display: flex;
+      background: #F8F8F8;
+      border: 1px solid #E8E8EA;
+      border-radius: 4px;
+      gap: 8px;
     }
     
     .insight-icon {
-      margin-right: 8px;
       width: 20px;
       text-align: center;
     }
@@ -231,25 +242,19 @@
   </style>
 </head>
 <body>
-  
   <div class="header">
     <h1>Hoot Spotter</h1>
     <span class="logo">🦉</span>
   </div>
-  <!-- Mode Tabs -->
+    <!-- Mode Tabs -->
 <div class="tabs">
   <button class="tab active" data-mode="control">Control</button>
   <button class="tab" data-mode="reference">Reference</button>
 </div>
 
-<!-- Mode-specific content containers -->
-<div class="panel" id="control-panel">Control panel content goes here.</div>
-<div class="panel hidden" id="reference-panel">Reference panel content goes here.</div>
-
   
   <div class="selection-section">
     <div class="selection-card">
-      <div class="selection-header">Design Library</div>
       <div id="control-preview" class="screenshot-bkg">
         <!-- Image goes here -->
       </div>
@@ -264,7 +269,6 @@
     </div>
     
     <div class="selection-card">   
-      <div class="selection-header">Component to Check</div>
       <div id="reference-preview" class="screenshot-bkg">
         <!-- Image will appear here -->
       </div>   
@@ -275,12 +279,15 @@
       </div>
       <button id="set-reference" class="primary-button">Set Component</button>
     </div>
-    <button id="run-scan" class="scan-button" disabled>Check Design Harmony</button>
   </div>
   
   <div id="results" class="results hidden">
     <!-- Results will be populated here -->
   </div>
+  <div class="button-container">
+    <button id="run-scan" class="scan-button" disabled>Check Design Harmony</button>
+  </div>
+
   
   <script>
     // DOM Elements
