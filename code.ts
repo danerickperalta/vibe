@@ -160,9 +160,9 @@ function calculateHarmony(component: SceneNode, patterns: any, baselineMode: boo
 
   if (component.parent) {
     const parent = component.parent as any;
-    console.log(`Parent node: ${parent.name}, type: ${parent.type}`);
-    console.log(`Parent clipsContent: ${parent.clipsContent}`);
-    console.log(`Parent corner radius: ${parent.cornerRadius}`);
+    console.log(`Parent node: ${String(parent.name)}, type: ${String(parent.type)}`);
+    console.log(`Parent clipsContent: ${String(parent.clipsContent)}`);
+    console.log(`Parent corner radius: ${String(parent.cornerRadius)}`);
   }
   
 
@@ -212,27 +212,34 @@ console.log(`Visual containers found: ${visualContainers.length}`);
 console.log(`Pattern corner radius range: ${patterns.cornerRadiusRange.min} to ${patterns.cornerRadiusRange.max}`);
 if (visualContainers.length > 0) {
   const primary = visualContainers[0] as any;
-  console.log(`Primary container: ${primary.name} (${primary.width}x${primary.height})`);
-  console.log(`Corner radius: ${primary.cornerRadius}`);
+  console.log(`Primary container: ${String(primary.name)} (${String(primary.width)}x${String(primary.height)})`);
+  console.log(`Corner radius: ${String(primary.cornerRadius)}`);
 }
 
 if (visualContainers.length > 0) {
-  const primaryContainer = visualContainers[0];
-  const cornerRadius = (primaryContainer as any).cornerRadius || 0;
-  
-  // Compare this single corner radius against the pattern range
-  if (cornerRadius >= patterns.cornerRadiusRange.min && 
-      cornerRadius <= patterns.cornerRadiusRange.max) {
-    shapeScore = 100;
+  const primary = visualContainers[0] as any;
+  const cornerRadius = primary.cornerRadius;
+
+  console.log(`Primary container: ${String(primary.name)} (${String(primary.width)}x${String(primary.height)})`);
+  console.log(`Corner radius: ${String(cornerRadius)}`);
+
+  if (typeof cornerRadius === "number") {
+    if (
+      cornerRadius >= patterns.cornerRadiusRange.min &&
+      cornerRadius <= patterns.cornerRadiusRange.max
+    ) {
+      shapeScore = 100;
+    } else {
+      const avgRadius = patterns.cornerRadiusRange.avg;
+      const difference = Math.abs(cornerRadius - avgRadius);
+      const maxDifference = Math.max(
+        patterns.cornerRadiusRange.max - avgRadius,
+        avgRadius - patterns.cornerRadiusRange.min
+      );
+      shapeScore = Math.max(0, 100 - (difference / maxDifference) * 100);
+    }
   } else {
-    // Calculate how far off it is from the range
-    const avgRadius = patterns.cornerRadiusRange.avg;
-    const difference = Math.abs(cornerRadius - avgRadius);
-    const maxDifference = Math.max(
-      patterns.cornerRadiusRange.max - avgRadius,
-      avgRadius - patterns.cornerRadiusRange.min
-    );
-    shapeScore = Math.max(0, 100 - (difference / maxDifference) * 100);
+    console.warn(`⚠️ Skipping corner radius check: mixed value on ${primary.name}`);
   }
 }
 
@@ -350,7 +357,11 @@ let referenceNode: SceneNode | null = null;
 
 // Initialize the plugin
 figma.showUI(__html__, { width: 360, height: 480 });
-
+(async () => {
+  await figma.clientStorage.setAsync("controlNodeId", null);
+  await figma.clientStorage.setAsync("referenceNodeId", null);
+  figma.ui.postMessage({ type: "reset-complete" });
+})();
 // Handle messages from the UI
 figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
   
