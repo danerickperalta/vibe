@@ -11,7 +11,7 @@
   }
 
   .tab {
-    padding: 8px 16px;
+    padding: 12px 16px;
     border: none;
     cursor: pointer;
     font-size: 14px;
@@ -21,6 +21,12 @@
     background: white;
     color: black;
   }
+
+  .tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
   .panel {
     display: block;
@@ -38,12 +44,12 @@
     }
 
     .header-container {
-      background: #1D1929;
+      background: #EEEEEE;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 16px 16px 16px;
+      padding: 24px 24px 0px 24px;
       position: relative;
     }
 
@@ -53,9 +59,9 @@
     }
     
     .header h1 {
-      font-size: 18px;
-      font-weight: 500;
-      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1D1929;
     }
     
     .header .logo {
@@ -82,10 +88,10 @@
 
     .intro-text {
       font-size: 14px;
-      color: white;
+      color: #1D1929;
       display: none;
-      padding: 1px 16px 16px 16px;
-      background-color: #1D1929;
+      padding: 1px 24px 1px 24px;
+      background: #EEEEEE;
     }
 
     .intro-text.visible {
@@ -103,6 +109,7 @@
       border-radius: 4px;
       margin-bottom: 12px;
       background-color: #EEEEEE;
+      overflow: hidden;
     }
     
     .selection-content {
@@ -181,7 +188,7 @@
       cursor: pointer;
       width: 100%;
       padding: 12px;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 400;
       border-radius: 4px;
       width: 100%;
@@ -197,15 +204,15 @@
     }
 
     .scan-button.restart {
-      background: #FFE8E8;
-      color: #FF4D4D;
-      border: 1px solid #FF4D4D;
+      background: #fffaf5;
+      color: #d27b00;
+      border: 1px solid #ff9706;
     }
 
     .scan-button.restart:hover {
-      background: #FF4D4D;
+      background: #ff9706;  
       color: #ffffff;
-      border: 1px solid #FF4D4D;
+      border: 1px solid #ff9706;
     }
 
     .button-container {
@@ -265,19 +272,28 @@
       background: #ffb4ae;
       color: #1D1929;
     }
+
+    .normal {
+      background: #ffffff;
+      color: #1D1929;
+    }
     
     .score-title {
-      font-weight: 400;
+      font-weight: bold;
+      font-size: 20px;
     }
     
     .score-value {
-      font-size: 20px;
-      font-weight: bold;
-      color: #1D1929;
-      padding: 2px 8px 2px 8px;
-      background-color: rgb(255, 255, 255);
-      border-radius: 100px;
-    }
+  font-size: 20px;
+  padding: 24px;
+  font-weight: bold;
+  color: #1D1929;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column; /* optional, for stacked emoji + text */
+}
     
     .score-details {
       background: white;
@@ -292,10 +308,9 @@
     .score-category {
       text-align: center;
       flex: 1;
-      padding-bottom: 4px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
     
     .category-score {
@@ -304,8 +319,8 @@
     }
     
     .category-name {
-      font-size: 14px;
-      color: #666;
+      font-size: 12px;
+      color: #000000;
     }
     
     .insights {
@@ -351,7 +366,7 @@
       </div>
       <div class="tooltip-icon" id="tooltip-toggle">
         <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18.18 18C18.6502 16.6633 19.5783 15.5362 20.7999 14.8183C22.0215 14.1003 23.4578 13.8379 24.8544 14.0774C26.2509 14.317 27.5176 15.043 28.4302 16.1271C29.3427 17.2111 29.8421 18.583 29.84 20C29.84 24 23.84 26 23.84 26M24 34H24.02M44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24Z" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.18 18C18.6502 16.6633 19.5783 15.5362 20.7999 14.8183C22.0215 14.1003 23.4578 13.8379 24.8544 14.0774C26.2509 14.317 27.5176 15.043 28.4302 16.1271C29.3427 17.2111 29.8421 18.583 29.84 20C29.84 24 23.84 26 23.84 26M24 34H24.02M44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24Z" stroke="#1D1929" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
     </div>
@@ -360,9 +375,10 @@
     </div>
     <!-- Mode Tabs -->
 <div class="tabs">
-  <button class="tab active" data-mode="control">Compliance Mode</button>
-  <button class="tab" data-mode="reference">Vibe Mode</button>
+  <button class="tab active" data-mode="control">Compliance</button>
+  <button class="tab disabled" data-mode="reference">Vibe (Coming Soon)</button>
 </div>
+
 
   
   <div class="selection-section">
@@ -609,19 +625,18 @@
         return;
       }
     
-      // Access properties from result.results
+      // Access properties from result.results and result itself
       const { overallPass, colorPass, shapePass, typographyPass, spacingPass, effectsPass, insights } = result.results;
+      const statusLevel = result.statusLevel; // Access statusLevel from the result object
     
       const statusText = overallPass ? "✅ PASS" : "❌ FAIL";
-      const scoreClass = overallPass ? "excellent" : "bad";
-      const statusLevel = result.statusLevel || "Needs fixing.";
-
+      let scoreClass = "normal";
+  if (statusLevel === "Almost there...") scoreClass = "average";
+  if (statusLevel === "Looks good!") scoreClass = "excellent";
     
       let html = `
         <div class="score-card">
-          <div class="score-header ${scoreClass}">
-<div class="score-value">${statusLevel}</div>
-          </div>
+          <div class="score-value">${statusLevel}</div>
           <div class="score-details">
             <div class="score-breakdown">
               <div class="score-category"><div class="category-score">${colorPass ? "✅" : "❌"}</div><div class="category-name">Color</div></div>

@@ -66,11 +66,11 @@ function generateInsights(results: {
     insights.push({
       icon: "🎨",
       text: failedColors.length
-        ? `Color ${failedColors.join(", ")} not found in design library. Valid colors: ${validList}.`
+        ? `Color ${failedColors.join(", ")} not found in design library.<br>Valid colors: ${validList}.`
         : "Some colors do not match the design library palette."
     });
-  } else {
-    insights.push({ icon: "✅", text: "Color usage is compliant with the design system." });
+  // } else {
+  //   insights.push({ icon: "✅", text: "Color usage is compliant with the design system." });
   }
 
   if (!results.shapePass) {
@@ -106,8 +106,8 @@ function generateInsights(results: {
         ? `Used spacing values: ${failedSpacing.join(", ")}. Expected: ${results.validSpacing?.join(", ")}.`
         : "Spacing between elements is inconsistent with system values."
     });
-  } else {
-    insights.push({ icon: "✅", text: "Spacing is compliant with the design system." });
+  // } else {
+  //   insights.push({ icon: "✅", text: "Spacing is compliant with the design system." });
   }
 
   if (!results.effectsPass) {
@@ -628,9 +628,9 @@ figma.ui.onmessage = async (msg: { type: string; nodeId?: string; [key: string]:
 
     const passCount = [colorPass, shapePass, typographyPass, spacingPass, effectsPass].filter(p => p).length;
 
-let statusLevel = "Needs fixing.";
-if (passCount >= 3 && passCount < 5) statusLevel = "Almost there...";
-if (passCount === 5) statusLevel = "Looks good!";
+let statusLevel = "Needs fixing ❌";
+if (passCount >= 3 && passCount < 5) statusLevel = "Almost there 🔎";
+if (passCount === 5) statusLevel = "Looks good! ✅";
 
 
 figma.ui.postMessage({
@@ -654,12 +654,8 @@ figma.ui.postMessage({
   }
 
   if (msg.type === "restore-session") {
-    try {
-      const controlId = await figma.clientStorage.getAsync("controlNodeId");
-      const referenceId = await figma.clientStorage.getAsync("referenceNodeId");
-      if (controlId) {
-        const node = await figma.getNodeByIdAsync(controlId) as SceneNode;
-        if (node) { controlNode = node; figma.ui.postMessage({ type: "control-set", name: node.name }); }
+  // Skipped restoring previous session to start fresh
+}); }
       }
       if (referenceId) {
         const node = await figma.getNodeByIdAsync(referenceId) as SceneNode;
