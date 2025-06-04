@@ -111,11 +111,15 @@ function generateInsights(results: {
   }
 
   if (!results.effectsPass) {
+    const failedEffects = (results.usedEffects || []).filter(e => !(results.validEffects || []).includes(e));
     insights.push({
       icon: "💫",
-      text: "Some visual effects (like shadows or blurs) are not compliant with the design system."
+      text: failedEffects.length
+        ? `Used effects: ${failedEffects.join(", ")}. Expected: ${results.validEffects?.join(", ")}.`
+        : "Some visual effects (like shadows or blurs) are not compliant with the design system."
     });
   }
+  
 
   return insights;
 }
@@ -487,7 +491,7 @@ figma.ui.onmessage = async (msg: { type: string; nodeId?: string; [key: string]:
       figma.ui.postMessage({ type: "control-set", name: controlNode.name, preview: `data:image/png;base64,${base64}` });
       figma.notify("✅ Design library set: " + controlNode.name);
     } else {
-      figma.notify("⚠️ Please select a node first");
+      figma.notify("⚠️ Please select a frame in Figma first");
     }
   }
 
@@ -500,7 +504,7 @@ figma.ui.onmessage = async (msg: { type: string; nodeId?: string; [key: string]:
       figma.ui.postMessage({ type: "reference-set", name: referenceNode.name, preview: `data:image/png;base64,${base64}` });
       figma.notify("✅ Component to check set: " + referenceNode.name);
     } else {
-      figma.notify("⚠️ Please select a node first");
+      figma.notify("⚠️ Please select a frame in Figma first");
     }
   }
 
@@ -654,14 +658,29 @@ figma.ui.postMessage({
   }
 
   if (msg.type === "restore-session") {
-  // Skipped restoring previous session to start fresh
-}); }
+    try {
+      const controlId = await figma.clientStorage.getAsync("controlNodeId");
+      const referenceId = await figma.clientStorage.getAsync("referenceNodeId");
+      
+      if (controlId) {
+        const node = await figma.getNodeByIdAsync(controlId) as SceneNode;
+        if (node) {
+          controlNode = node;
+          figma.ui.postMessage({ type: "control-set", name: node.name });
+        }
       }
+      
       if (referenceId) {
         const node = await figma.getNodeByIdAsync(referenceId) as SceneNode;
-        if (node) { referenceNode = node; figma.ui.postMessage({ type: "reference-set", name: node.name }); }
+        if (node) {
+          referenceNode = node;
+          figma.ui.postMessage({ type: "reference-set", name: node.name });
+        }
       }
-    } catch {/* ignore */ }
+    } catch (error) {
+      // Ignore errors during session restore
+      console.error("Error restoring session:", error);
+    }
   }
 
   if (msg.type === "focus-node") {
@@ -692,7 +711,8 @@ figma.ui.postMessage({
   }
 
   if (msg.type === "clear-reference") {
-    referenceNode = null; await figma.clientStorage.setAsync("referenceNodeId", null);
+    referenceNode = null; 
+    await figma.clientStorage.setAsync("referenceNodeId", null);
   }
 };
 
