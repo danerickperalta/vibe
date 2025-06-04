@@ -574,89 +574,65 @@
     }
     
     // Generate insights based on scores and patterns
-    function generateInsights(componentType, harmony, patterns) {
+    function generateInsights(results) {
       const insights = [];
-      
-
-      
-      // Color insights
-      if (harmony.colorScore < 70) {
-        insights.push({
-          icon: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#5254F69"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.49976 0C3.11904 0 1.99976 1.11929 1.99976 2.5V6.29284L1.56036 6.73224C0.584046 7.70855 0.584048 9.29146 1.56036 10.2678L4.73193 13.4393C5.70824 14.4157 7.29115 14.4157 8.26747 13.4393L12.439 9.26777C13.4154 8.29146 13.4153 6.70855 12.439 5.73224L9.26747 2.56066C8.63235 1.92555 7.74054 1.70359 6.926 1.89479C6.65542 0.806497 5.67177 0 4.49976 0ZM5.99976 3.70705V7H6.99976V2.91383C7.5274 2.72776 8.13834 2.84575 8.56036 3.26777L11.7319 6.43934C12.3177 7.02513 12.3177 7.97488 11.7319 8.56066L11.2926 9H1.91354C1.72745 8.47234 1.84543 7.86138 2.26746 7.43934L5.99976 3.70705ZM5.99076 2.33478C5.90851 1.58409 5.27235 1 4.49976 1C3.67133 1 2.99976 1.67157 2.99976 2.5V5.29284L5.73193 2.56066C5.81415 2.47845 5.90067 2.40315 5.99076 2.33478Z" fill="#5254F6"/><path d="M12.6443 9.73698L14.1786 11.2713C15.0931 12.1858 15.0096 13.6921 13.9998 14.5C13.2073 15.134 12.0812 15.134 11.2888 14.5C10.2789 13.6921 10.1955 12.1858 11.1099 11.2713L12.6443 9.73698Z" fill="#5254F6"/></svg>',          text: `Consider using colors from your design system palette (${patterns.colorPalette.slice(0, 3).join(', ')}${patterns.colorPalette.length > 3 ? '...' : ''})`
-        });
-      } else {
-        insights.push({
-          icon: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#5254F69"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.49976 0C3.11904 0 1.99976 1.11929 1.99976 2.5V6.29284L1.56036 6.73224C0.584046 7.70855 0.584048 9.29146 1.56036 10.2678L4.73193 13.4393C5.70824 14.4157 7.29115 14.4157 8.26747 13.4393L12.439 9.26777C13.4154 8.29146 13.4153 6.70855 12.439 5.73224L9.26747 2.56066C8.63235 1.92555 7.74054 1.70359 6.926 1.89479C6.65542 0.806497 5.67177 0 4.49976 0ZM5.99976 3.70705V7H6.99976V2.91383C7.5274 2.72776 8.13834 2.84575 8.56036 3.26777L11.7319 6.43934C12.3177 7.02513 12.3177 7.97488 11.7319 8.56066L11.2926 9H1.91354C1.72745 8.47234 1.84543 7.86138 2.26746 7.43934L5.99976 3.70705ZM5.99076 2.33478C5.90851 1.58409 5.27235 1 4.49976 1C3.67133 1 2.99976 1.67157 2.99976 2.5V5.29284L5.73193 2.56066C5.81415 2.47845 5.90067 2.40315 5.99076 2.33478Z" fill="#5254F6"/><path d="M12.6443 9.73698L14.1786 11.2713C15.0931 12.1858 15.0096 13.6921 13.9998 14.5C13.2073 15.134 12.0812 15.134 11.2888 14.5C10.2789 13.6921 10.1955 12.1858 11.1099 11.2713L12.6443 9.73698Z" fill="#5254F6"/></svg>',          text: 'Colors align well with your design system palette.'
-        });
+    
+      if (!results.colorPass) {
+        insights.push({ icon: "🎨", text: "Some colors do not match the design library palette." });
+      } else { insights.push({ icon: "✅", text: "Color usage is compliant with the design system." }); }
+    
+      if (!results.shapePass) {
+        insights.push({ icon: "📐", text: "Corner radius or shape does not match typical components." });
       }
-      // Shape insights
-      if (harmony.shapeScore < 70) {
-        insights.push({
-          icon: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#F5F5F5"/><path d="M10 1.5H11M13 1.5H14M13 4.5H14M13 7.5H14M13 10.5H14M13 13.5H14M10 13.5H11M7 13.5H8M4 13.5H5M1 13.5H2M1 10.5H2M1.5 8V5.5C1.5 3.29086 3.29086 1.5 5.5 1.5H8" stroke="#5254F6"/></svg>',
-          text: `Your design system typically uses corner radii between ${patterns.cornerRadiusRange.min}px and ${patterns.cornerRadiusRange.max}px.`
-        });
-      }
-      
-      // Typography insights
-      if (harmony.typographyScore < 70) {
-        const fontFamilies = [...new Set(patterns.typographyStyles.map(s => s.family))];
-        insights.push({
-          icon: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#F5F5F5"/><path d="M5 7.5H10M4 4.5H11M5.5 11.4928L7.5 14.4909L9.5 11.4928H13.5C14.053 11.4928 14.5 11.0461 14.5 10.4935V1.49935C14.5 0.946709 14.053 0.5 13.5 0.5H1.5C0.947 0.5 0.5 0.946709 0.5 1.49935V10.4935C0.5 11.0461 0.947 11.4928 1.5 11.4928H5.5Z" stroke="#5254F6" stroke-linejoin="round"/></svg>',
-          text: `Consider using consistent typography: ${fontFamilies.slice(0, 2).join(', ')}${fontFamilies.length > 2 ? '...' : ''}`
-        });
-      }
-      
-      // Spacing insights
-      if (harmony.spacingScore < 70) {
-        insights.push({
-          icon: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#F5F5F5"/><path d="M4.5 4.5V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H13.5C14.0523 0.5 14.5 0.947715 14.5 1.5V9.5C14.5 10.0523 14.0523 10.5 13.5 10.5H10.5M4.5 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V13.5C0.5 14.0523 0.947716 14.5 1.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V10.5M4.5 4.5V7M4.5 4.5H7M10.5 10.5H8M10.5 10.5V8M8 4.5H10.5V7M4.5 8V10.5H7" stroke="#5254F6"/></svg>',
-          text: `Your design system typically uses spacing values between ${patterns.spacingValues.min}px and ${patterns.spacingValues.max}px.`
-        });
-      }
-      
+    
+      if (!results.typographyPass) {
+        insights.push({ icon: "📝", text: "Fonts or text styles differ from the design library." });
+      } else { insights.push({ icon: "✅", text: "Typography is compliant with the design system." }); }
+    
+      if (!results.spacingPass) {
+        insights.push({ icon: "↔️", text: "Spacing between elements is inconsistent with system values." });
+      } else { insights.push({ icon: "✅", text: "Spacing is compliant with the design system." }); }
+    
+      if (!results.effectsPass) {
+        insights.push({ icon: "💫", text: "Some visual effects (like shadows or blurs) are not compliant." });
+      } else { insights.push({ icon: "✅", text: "Effects are compliant with the design system." }); }
+    
       return insights;
     }
     
     // Render harmony score results
     function renderResults(result) {
+      const resultsContainer = document.getElementById('results');
+    
       if (!result.success) {
         resultsContainer.innerHTML = `<div class="no-results">${result.message}</div>`;
         return;
       }
-      
-      const { harmony, patterns } = result;
-      const scoreClass = getScoreClass(harmony.overallScore);
-      const componentType = getComponentType(harmony);
-      const insights = generateInsights(componentType, harmony, patterns);
-      
+    
+      // Access properties from result.results
+      const { overallPass, colorPass, shapePass, typographyPass, spacingPass, effectsPass, insights } = result.results;
+    
+      const statusText = overallPass ? "✅ PASS" : "❌ FAIL";
+      const scoreClass = overallPass ? "excellent" : "bad";
+      const statusLevel = result.statusLevel || "Needs fixing.";
+
+    
       let html = `
         <div class="score-card">
           <div class="score-header ${scoreClass}">
-            <div class="score-title">${getHarmonyMessage(harmony.overallScore, componentType)}</div>
-            <div class="score-value">${harmony.overallScore}%</div>
+<div class="score-value">${statusLevel}</div>
           </div>
           <div class="score-details">
             <div class="score-breakdown">
-              <div class="score-category">
-                <div class="category-score">${harmony.colorScore}%</div>
-                <div class="category-name">Color</div>
-              </div>
-              <div class="score-category">
-                <div class="category-score">${harmony.shapeScore}%</div>
-                <div class="category-name">Shape</div>
-              </div>
-              <div class="score-category">
-                <div class="category-score">${harmony.typographyScore}%</div>
-                <div class="category-name">Type</div>
-              </div>
-              <div class="score-category">
-                <div class="category-score">${harmony.spacingScore}%</div>
-                <div class="category-name">Spacing</div>
-              </div>
+              <div class="score-category"><div class="category-score">${colorPass ? "✅" : "❌"}</div><div class="category-name">Color</div></div>
+              <div class="score-category"><div class="category-score">${shapePass ? "✅" : "❌"}</div><div class="category-name">Shape</div></div>
+              <div class="score-category"><div class="category-score">${typographyPass ? "✅" : "❌"}</div><div class="category-name">Type</div></div>
+              <div class="score-category"><div class="category-score">${spacingPass ? "✅" : "❌"}</div><div class="category-name">Spacing</div></div>
+              <div class="score-category"><div class="category-score">${effectsPass ? "✅" : "❌"}</div><div class="category-name">Effects</div></div>
             </div>
             <div class="insights">
       `;
-      
+    
       insights.forEach(insight => {
         html += `
           <div class="insight">
@@ -665,95 +641,89 @@
           </div>
         `;
       });
-      
+    
       html += `
             </div>
           </div>
         </div>
       `;
-      
+    
       resultsContainer.innerHTML = html;
     }
+
     
     // Message handler
     window.onmessage = (event) => {
       const msg = event.data.pluginMessage;
-      
+    
       if (msg.type === 'control-set') {
-        document.getElementById('control-name').textContent = msg.name;
-
-        if (msg.preview) {
-          const container = document.getElementById('control-preview');
-          container.innerHTML = "";
-
-          const img = document.createElement('img');
-          img.src = msg.preview;
-          img.alt = "Control preview";
-          img.style.maxHeight = "140px";
-          img.style.width = "auto";
-          img.style.maxWidth = "100%";
-          img.style.objectFit = "contain";
-          img.style.borderRadius = "6px";
-          img.style.display = "block";
-          img.style.margin = "0 auto";
-          img.style.backgroundColor = "#EEEEEE";
-          img.style.padding = "8px";
-          img.style.boxSizing = "border-box";
-
-          container.appendChild(img);
-        }
-
+        const container = document.getElementById('control-preview');
+        container.innerHTML = "";
+    
+        const img = document.createElement('img');
+        img.src = msg.preview;
+        img.alt = "Control preview";
+        img.style.maxHeight = "140px";
+        img.style.width = "auto";
+        img.style.maxWidth = "100%";
+        img.style.objectFit = "contain";
+        img.style.borderRadius = "6px";
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        img.style.backgroundColor = "#EEEEEE";
+        img.style.padding = "8px";
+        img.style.boxSizing = "border-box";
+    
+        container.appendChild(img);
+    
         controlSet = true;
-        controlNameEl.textContent       = msg.name;
-        clearControlBtn.disabled        = false;
-        focusControlBtn.disabled        = false;
+        controlNameEl.textContent = msg.name;
+        clearControlBtn.disabled = false;
+        focusControlBtn.disabled = false;
         updateButtonStates();
-
+    
         // Updated: Hide primary button, show selection status
         setControlBtn.style.display = 'none';
         document.querySelector('.selection-card:first-child .selection-status').classList.add('visible');
+    
       }
-
+    
       if (msg.type === 'reference-set') {
-        document.getElementById('reference-name').textContent = msg.name;
-
-        if (msg.preview) {
-          const container = document.getElementById('reference-preview');
-          container.innerHTML = "";
-
-          const img = document.createElement('img');
-          img.src = msg.preview;
-          img.alt = "Reference preview";
-          img.style.maxHeight = "140px";
-          img.style.width = "auto";
-          img.style.maxWidth = "100%";
-          img.style.objectFit = "contain";
-          img.style.borderRadius = "6px";
-          img.style.display = "block";
-          img.style.margin = "0 auto";
-          img.style.backgroundColor = "#EEEEEE";
-          img.style.padding = "8px";
-          img.style.boxSizing = "border-box";
-
-          container.appendChild(img);
-        }
-
+        const container = document.getElementById('reference-preview');
+        container.innerHTML = "";
+    
+        const img = document.createElement('img');
+        img.src = msg.preview;
+        img.alt = "Reference preview";
+        img.style.maxHeight = "140px";
+        img.style.width = "auto";
+        img.style.maxWidth = "100%";
+        img.style.objectFit = "contain";
+        img.style.borderRadius = "6px";
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        img.style.backgroundColor = "#EEEEEE";
+        img.style.padding = "8px";
+        img.style.boxSizing = "border-box";
+    
+        container.appendChild(img);
+    
         referenceSet = true;
-        referenceNameEl.textContent     = msg.name;
-        clearReferenceBtn.disabled      = false;
-        focusReferenceBtn.disabled      = false;
+        referenceNameEl.textContent = msg.name;
+        clearReferenceBtn.disabled = false;
+        focusReferenceBtn.disabled = false;
         updateButtonStates();
-
+    
         // Updated: Hide primary button, show selection status
         setReferenceBtn.style.display = 'none';
         document.querySelector('.selection-card:last-child .selection-status').classList.add('visible');
       }
-
+    
       if (msg.type === 'reset-complete') {
         hasScanned = false;
         runScanBtn.textContent = "Check Design Harmony";
         runScanBtn.classList.remove('restart');
-
+    
         // Clear UI for preview and status
         controlSet = false;
         referenceSet = false;
@@ -763,26 +733,45 @@
         document.getElementById('reference-preview').innerHTML = "";
         resultsContainer.innerHTML = "";
         resultsContainer.classList.add("hidden");
-        
+    
         // Updated: Show primary buttons, hide selection status
         setControlBtn.style.display = 'block';
         document.querySelector('.selection-card:first-child .selection-status').classList.remove('visible');
         setReferenceBtn.style.display = 'block';
         document.querySelector('.selection-card:last-child .selection-status').classList.remove('visible');
-        
+    
         updateButtonStates();
       }
+    
       if (msg.type === 'scan-result') {
         if (msg.success) {
           hasScanned = true;
           runScanBtn.textContent = "Reset";
           runScanBtn.classList.add('restart');
         }
-
         renderResults(msg);
       }
+    
+      if (msg.type === "restore-session") {
+        // This message type is handled by the plugin code to update the UI on load
+        // No action needed here in the message handler itself, as the plugin will send subsequent messages
+        // to update the UI elements if nodes are restored.
+      }
+    
+      if (msg.type === "focus-node") {
+        // This message type is handled by the plugin code
+      }
+    
+      if (msg.type === "clear-control" || msg.type === "clear-reference" || msg.type === "reset") {
+        // These message types are handled by the plugin code
+      }
     };
+    
+    // Initialize by trying to restore previous session
+    parent.postMessage({ pluginMessage: { type: 'restore-session' } }, '*');
+    
   </script>
+  
   <script>
     const tabs = document.querySelectorAll(".tab");
     const panels = {
@@ -798,9 +787,12 @@
   
         // Toggle content panels
         const mode = tab.dataset.mode;
-        Object.keys(panels).forEach(key => {
-          panels[key].classList.toggle("hidden", key !== mode);
-        });
+        // Ensure panels exist before trying to access classList
+        if (panels[mode]) {
+          Object.keys(panels).forEach(key => {
+            panels[key].classList.toggle("hidden", key !== mode);
+          });
+        }
       });
     });
   </script>
@@ -808,7 +800,7 @@
   <script>
     const tooltipToggle = document.getElementById('tooltip-toggle');
     const introText = document.getElementById('intro-text');
-
+  
     tooltipToggle.addEventListener('click', () => {
       introText.classList.toggle('visible');
     });
