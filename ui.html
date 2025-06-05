@@ -27,11 +27,6 @@
   cursor: not-allowed;
 }
 
-
-  .panel {
-    display: block;
-  }
-
   .hidden {
     display: none;
   }
@@ -245,49 +240,12 @@
       overflow: hidden;
     }
     
-    .score-header {
-      padding: 24px 16px 24px 16px;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
     
-    .excellent {
-      background: #9dffa0;
-      color: #1D1929;
-    }
-  
-    .good {
-      background: #e3ff9e;
-      color: #1D1929;
-    }
-
-    .average {
-      background: #ffe494;
-      color: #1D1929;
-    }
-
-    .poor {
-      background: #ffc36a;
-      color: #1D1929;
-    }
-
-    .bad {
-      background: #ffb4ae;
-      color: #1D1929;
-    }
-
     .normal {
       background: #ffffff;
       color: #1D1929;
     }
-    
-    .score-title {
-      font-weight: bold;
-      font-size: 20px;
-    }
+
     
     .score-value {
   font-size: 20px;
@@ -595,78 +553,8 @@ With both selected, run the scan to see how closely your design lines up with yo
       focusReferenceBtn.disabled = !referenceSet;
     }
     
-    // Get score class
-    function getScoreClass(score) {
-      if (score >= 90) return 'excellent';
-      if (score >= 75) return 'good';
-      if (score >= 60) return 'average';
-      if (score >= 40) return 'poor';
-      return 'bad';
-    }
-    
-    // Get component type based on harmony score
-    function getComponentType(harmony) {
-      // Determine the most significant category
-      const scores = [
-        { type: 'Color', score: harmony.colorScore },
-        { type: 'Shape', score: harmony.shapeScore },
-        { type: 'Typography', score: harmony.typographyScore },
-        { type: 'Spacing', score: harmony.spacingScore }
-      ];
-      
-      // Sort by score to find the highest scoring category
-      scores.sort((a, b) => b.score - a.score);
-      
-      // If the highest score is significantly higher than others, use that type
-      if (scores[0].score > scores[1].score + 20) {
-        return scores[0].type;
-      }
-      
-      // If scores are close, return "Component" as a generic type
-      return "Component";
-    }
 
-    // Get harmony message based on score and component type
-    function getHarmonyMessage(score, componentType) {
-      if (score >= 90) {
-        return `${componentType} perfectly matches your design system!`;
-      } else if (score >= 75) {
-        return `${componentType} aligns well with your design system.`;
-      } else if (score >= 60) {
-        return `${componentType} has some inconsistencies with your design system.`;
-      } else if (score >= 40) {
-        return `${componentType} needs significant adjustments to match your design system.`;
-      } else {
-        return `${componentType} requires a complete redesign to match your design system.`;
-      }
-    }
-    
-    // Generate insights based on scores and patterns
-    function generateInsights(results) {
-      const insights = [];
-    
-      if (!results.colorPass) {
-        insights.push({ icon: "🎨", text: "Some colors do not match the design library palette." });
-      } else { insights.push({ icon: "✅", text: "Color usage is compliant with the design system." }); }
-    
-      if (!results.shapePass) {
-        insights.push({ icon: "📐", text: "Corner radius or shape does not match typical components." });
-      }
-    
-      if (!results.typographyPass) {
-        insights.push({ icon: "📝", text: "Fonts or text styles differ from the design library." });
-      } else { insights.push({ icon: "✅", text: "Typography is compliant with the design system." }); }
-    
-      if (!results.spacingPass) {
-        insights.push({ icon: "↔️", text: "Spacing between elements is inconsistent with system values." });
-      } else { insights.push({ icon: "✅", text: "Spacing is compliant with the design system." }); }
-    
-      if (!results.effectsPass) {
-        insights.push({ icon: "💫", text: "Some visual effects (like shadows or blurs) are not compliant." });
-      } else { insights.push({ icon: "✅", text: "Effects are compliant with the design system." }); }
-    
-      return insights;
-    }
+  
     
     // Render harmony score results
     function renderResults(result) {
