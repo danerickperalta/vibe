@@ -168,7 +168,7 @@ figma.ui.onmessage = async (msg: { type: string; nodeId?: string; [key: string]:
       const bytes = await referenceNode.exportAsync({ format: "PNG", constraint: { type: "SCALE", value: 2 } });
       const base64 = figma.base64Encode(bytes);
       figma.ui.postMessage({ type: "reference-set", name: referenceNode.name, preview: `data:image/png;base64,${base64}` });
-      figma.notify("✅ Component to check set: " + referenceNode.name);
+      figma.notify("✅ Frame to check set: " + referenceNode.name);
     } else {
       figma.notify("⚠️ Please select a frame in Figma first");
     }
@@ -319,7 +319,7 @@ figma.ui.postMessage({
 });
 
 
-    figma.notify("✅ Design harmony analysis complete!");
+    figma.notify("✅ Design analysis complete!");
 
   }
 
@@ -361,7 +361,7 @@ figma.ui.postMessage({
       figma.viewport.scrollAndZoomIntoView([node]);
       figma.notify("🔍 Focused on " + node.name);
     } else {
-      figma.notify("⚠️ Couldn't find the node to focus on.");
+      figma.notify("⚠️ Couldn't find the frame to focus on.");
     }
   }
 
