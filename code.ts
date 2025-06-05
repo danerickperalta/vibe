@@ -44,15 +44,24 @@ function generateInsights(results: {
 
   if (!results.colorPass) {
     const failedColors = (results.usedColors || []).filter(c => !(results.validColors || []).includes(c));
-    const validList = (results.validColors || []).slice(0, 4).join(", ");
+    const validList = (results.validColors || []).slice(0, 4);
+    
+    // Create color squares for failed colors
+    const failedColorsWithSquares = failedColors.map(color => 
+      `<span style="display: inline-block; vertical-align: -1px; width: 10px; height: 10px; background-color: ${color}; border: 1px solid #ccc; margin-right: 4px; vertical-align: middle;"></span>${color}`
+    ).join(", ");
+    
+    // Create color squares for valid colors
+    const validColorsWithSquares = validList.map(color => 
+      `<span style="display: inline-block; vertical-align: -1px; width: 10px; height: 10px; background-color: ${color}; border: 1px solid #ccc; margin-right: 4px; vertical-align: middle;"></span>${color}`
+    ).join(", ");
+    
     insights.push({
       icon: "🎨",
       text: failedColors.length
-        ? `Color ${failedColors.join(", ")} not found in design library.<br>Valid colors: ${validList}.`
+        ? `<strong>Found:</strong> ${failedColorsWithSquares} <br><strong>Expected:</strong> ${validColorsWithSquares}.`
         : "Some colors do not match the design library palette."
     });
-  // } else {
-  //   insights.push({ icon: "✅", text: "Color usage is compliant with the design system." });
   }
 
   if (!results.shapePass) {
@@ -60,7 +69,7 @@ function generateInsights(results: {
     insights.push({
       icon: "📐",
       text: failedRadii.length
-        ? `Corner radius ${failedRadii.join(", ")} not found in system. Expected: ${results.validCornerRadii?.join(", ")}.`
+        ? `<strong>Found:</strong> Corners ${failedRadii.join(", ")} <br><strong>Expected:</strong> Corners ${results.validCornerRadii?.join(", ")}.`
         : "Corner radius or shape does not match typical components."
     });
   }
@@ -75,7 +84,7 @@ function generateInsights(results: {
     insights.push({
       icon: "📝",
       text: failedFonts.length
-        ? `Used typography not found: ${failedFonts.map(formatFont).join(", ")}. Valid: ${validFonts}.`
+        ? `<strong>Found:</strong> ${failedFonts.map(formatFont).join(", ")}. <br><strong>Expected:</strong> ${validFonts}.`
         : "Fonts or text styles differ from the design library."
     });
   }
@@ -85,7 +94,7 @@ function generateInsights(results: {
     insights.push({
       icon: "↔️",
       text: failedSpacing.length
-        ? `Used spacing values: ${failedSpacing.join(", ")}. Expected: ${results.validSpacing?.join(", ")}.`
+        ? `<strong>Found:</strong> Layout ${failedSpacing.join(", ")}. <br><strong>Expected:</strong> Layout ${results.validSpacing?.join(", ")}.`
         : "Spacing between elements is inconsistent with system values."
     });
   // } else {
@@ -97,7 +106,7 @@ function generateInsights(results: {
     insights.push({
       icon: "💫",
       text: failedEffects.length
-        ? `Used effects: ${failedEffects.join(", ")}. Expected: ${results.validEffects?.join(", ")}.`
+        ? `<strong>Found:</strong> Effect ${failedEffects.join(", ")}. <br><strong>Expected:</strong> Effect ${results.validEffects?.join(", ")}.`
         : "Some visual effects (like shadows or blurs) are not compliant with the design system."
     });
   }
